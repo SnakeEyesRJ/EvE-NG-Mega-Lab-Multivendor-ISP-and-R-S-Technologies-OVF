@@ -1,0 +1,507 @@
+﻿ISP-TATA#end 
+Translating "end"
+
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+ISP-TATA#terminal length 0 
+ISP-TATA#show running-config 
+Building configuration...
+
+Current configuration : 13804 bytes
+!
+! Last configuration change at 17:18:21 BRT Mon Sep 28 2026 by eve
+! NVRAM config last updated at 17:18:22 BRT Mon Sep 28 2026 by eve
+!
+version 15.4
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+!
+hostname ISP-TATA
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$4Jsi$Fayc/d1G6bjXxzqgB4bDn0
+!
+no aaa new-model
+clock timezone BRT -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip source-route
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.15.1
+ip name-server 192.168.100.1
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username evelab privilege 15 secret 5 $1$Y4tr$MkhrH0uXD3thBJrY3ECJ60
+username eve privilege 15 secret 5 $1$.UL8$qLK9P6ydkz4DZW0AMpLNA.
+!
+redundancy
+!
+lldp run
+no cdp log mismatch duplex
+no cdp run
+!
+track 1 ip sla 1 reachability
+!
+track 2 ip sla 2 reachability
+!
+track 5 ip sla 5 reachability
+!
+track 6 ip sla 6 reachability
+!
+ip ftp username eve
+ip ftp password 7 072A374942081B2545425959
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh source-interface Loopback1
+ip ssh version 2
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+class-map match-any CM-TRANSIT-CONTROL
+ match access-group name QOS-TRANSIT-CONTROL
+ match dscp cs6 
+class-map match-any CM-TRANSIT-SCAVENGER
+ match dscp cs1 
+class-map match-any CM-TRANSIT-VOICE
+ match dscp ef 
+class-map match-any CM-TRANSIT-CRITICAL
+ match dscp af31 
+!
+policy-map PM-QOS-CHILD-TRANSIT
+ class CM-TRANSIT-CONTROL
+  priority percent 5
+ class CM-TRANSIT-VOICE
+  priority percent 10
+ class CM-TRANSIT-CRITICAL
+  bandwidth percent 15 
+ class CM-TRANSIT-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-TRANSIT
+ class class-default
+  shape average 20000000
+   service-policy PM-QOS-CHILD-TRANSIT
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback1
+ description Anuncio-eBGP1
+ ip address 172.19.10.1 255.255.255.255
+ ipv6 address FC11::1/128
+!
+interface Loopback2
+ description Anuncio-eBGP2
+ ip address 172.19.20.1 255.255.255.255
+ ipv6 address FC12::1/128
+!
+interface Loopback3
+ description Anuncio-eBGP3
+ ip address 172.19.30.1 255.255.255.255
+ ipv6 address FC13::1/128
+!
+interface Loopback4
+ description Anuncio-eBGP4
+ ip address 172.19.40.1 255.255.255.255
+ ipv6 address FC14::1/128
+!
+interface Loopback5
+ description Anuncio-eBGP5
+ ip address 172.19.50.1 255.255.255.255
+ ipv6 address FC15::1/128
+!
+interface Ethernet0/0
+ description NOT-USED
+ no ip address
+ shutdown
+!
+interface Ethernet0/1
+ description To-SKNT-PE02-vIOS
+ ip address 10.202.0.2 255.255.255.252
+ ipv6 address FC23::/127
+ ipv6 enable
+ mpls bgp forwarding
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface Ethernet0/2
+ description To-SKNT-PE02-vIOS
+ ip address 10.204.0.2 255.255.255.252
+ ipv6 address FC68::/127
+ ipv6 enable
+ mpls bgp forwarding
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface Ethernet0/3
+ description NOT-USED
+ no ip address
+ shutdown
+!
+router bgp 500
+ bgp router-id 50.50.50.50
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ neighbor 10.202.0.1 remote-as 300
+ neighbor 10.202.0.1 description To-SKNT-PE02-Link1
+ neighbor 10.202.0.1 ttl-security hops 1
+ neighbor 10.202.0.1 password 7 03214D0E0A0E236C1C594B50
+ neighbor 10.204.0.1 remote-as 300
+ neighbor 10.204.0.1 description To-SKNT-PE02-Link2
+ neighbor 10.204.0.1 ttl-security hops 1
+ neighbor 10.204.0.1 password 7 06231924404F0B395747405E
+ neighbor FC23::1 remote-as 300
+ neighbor FC23::1 ttl-security hops 1
+ neighbor FC23::1 password 7 1432040E0005280B76786160
+ neighbor FC68::1 remote-as 300
+ neighbor FC68::1 ttl-security hops 1
+ neighbor FC68::1 password 7 00210503085A09265D711E1B
+ !
+ address-family ipv4
+  table-map RM-BGP-COMMUNITY-TO-RIB-TAG
+  network 172.19.10.1 mask 255.255.255.255
+  network 172.19.20.1 mask 255.255.255.255
+  network 172.19.30.1 mask 255.255.255.255
+  network 172.19.40.1 mask 255.255.255.255
+  network 172.19.50.1 mask 255.255.255.255
+  neighbor 10.202.0.1 activate
+  neighbor 10.202.0.1 send-community both
+  neighbor 10.202.0.1 soft-reconfiguration inbound
+  neighbor 10.202.0.1 route-map RM-IN-FROM-SKYNET-AS300-V4 in
+  neighbor 10.202.0.1 route-map RM-TATA-OUT-V4-17219-PREPEND out
+  neighbor 10.202.0.1 maximum-prefix 10 warning-only
+  neighbor 10.204.0.1 activate
+  neighbor 10.204.0.1 send-community both
+  neighbor 10.204.0.1 soft-reconfiguration inbound
+  neighbor 10.204.0.1 route-map RM-IN-FROM-SKYNET-AS300-V4 in
+  neighbor 10.204.0.1 route-map RM-TATA-OUT-V4-17219-PREPEND out
+  neighbor 10.204.0.1 maximum-prefix 10 warning-only
+  no neighbor FC23::1 activate
+  no neighbor FC68::1 activate
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 10.202.0.1 activate
+  neighbor 10.202.0.1 send-community both
+  neighbor 10.204.0.1 activate
+  neighbor 10.204.0.1 send-community both
+ exit-address-family
+ !
+ address-family ipv6
+  network FC11::1/128
+  network FC12::1/128
+  network FC13::1/128
+  network FC14::1/128
+  network FC15::1/128
+  neighbor FC23::1 activate
+  neighbor FC23::1 send-community both
+  neighbor FC23::1 soft-reconfiguration inbound
+  neighbor FC23::1 route-map RM-IN-FROM-SKYNET-AS300-V6 in
+  neighbor FC23::1 route-map RM-TATA-OUT-V6-TEST out
+  neighbor FC23::1 maximum-prefix 10 warning-only
+  neighbor FC68::1 activate
+  neighbor FC68::1 send-community both
+  neighbor FC68::1 soft-reconfiguration inbound
+  neighbor FC68::1 route-map RM-IN-FROM-SKYNET-AS300-V6 in
+  neighbor FC68::1 route-map RM-TATA-OUT-V6-TEST out
+  neighbor FC68::1 maximum-prefix 10 warning-only
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+ip community-list standard COMM-FROM-TATA-AS500 permit 300:500
+ip community-list standard COMM-FROM-SKYNET-AS300 permit 300:300
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.204.0.1 10 name PE02-vIOS-Link-02 track 1
+ip route 0.0.0.0 0.0.0.0 10.202.0.1 name PE02-vIOS-Link-01 track 2
+!
+ip access-list extended QOS-TRANSIT-CONTROL
+ remark SKYNET-QOS-TRANSIT-CONTROL-PLANE-AND-ROUTING
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ permit udp any any eq 1698
+ permit udp any eq 1698 any
+ permit udp any any eq 1699
+ permit udp any eq 1699 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ permit 46 any any
+ip access-list extended SSH-ALLOWED
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ deny   ip any any
+!
+!
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 10 permit 172.16.0.0/24
+!
+ip prefix-list PL-SKYNET-FROM-PE02-V4 seq 10 permit 172.16.0.0/24
+!
+ip prefix-list PL-TATA-OUT-V4-17219 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-TATA-OUT-V4-17219 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-TATA-OUT-V4-17219 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-TATA-OUT-V4-17219 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-TATA-OUT-V4-17219 seq 50 permit 172.19.50.1/32
+!
+ip prefix-list PL-TATA-TO-PE02-V4 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-TATA-TO-PE02-V4 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-TATA-TO-PE02-V4 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-TATA-TO-PE02-V4 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-TATA-TO-PE02-V4 seq 50 permit 172.19.50.1/32
+ip sla 1
+ icmp-echo 10.204.0.1 source-interface Ethernet0/2
+ threshold 500
+ frequency 5
+ip sla schedule 1 life forever start-time now
+ip sla 2
+ icmp-echo 10.202.0.1 source-interface Ethernet0/1
+ threshold 500
+ frequency 5
+ip sla schedule 2 life forever start-time now
+ip sla 5
+ icmp-echo FC23::1 source-interface Ethernet0/1
+ threshold 500
+ frequency 5
+ip sla schedule 5 life forever start-time now
+ip sla 6
+ icmp-echo FC68::1 source-interface Ethernet0/2
+ threshold 500
+ frequency 5
+ip sla schedule 6 life forever start-time now
+ipv6 route ::/0 FC23::1 track 5 name PE02-vIOS-Link-01
+ipv6 route ::/0 FC68::1 10 track 6 name PE02-vIOS-Link-02
+!
+!
+ipv6 prefix-list PL-SKYNET-FROM-PE02-V6 seq 10 permit FC16::/48
+!
+ipv6 prefix-list PL-TATA-OUT-V6-TEST seq 10 permit FC11::1/128
+ipv6 prefix-list PL-TATA-OUT-V6-TEST seq 20 permit FC12::1/128
+ipv6 prefix-list PL-TATA-OUT-V6-TEST seq 30 permit FC13::1/128
+ipv6 prefix-list PL-TATA-OUT-V6-TEST seq 40 permit FC14::1/128
+ipv6 prefix-list PL-TATA-OUT-V6-TEST seq 50 permit FC15::1/128
+!
+ipv6 prefix-list PL-TATA-TO-PE02-V6 seq 10 permit FC11::1/128
+ipv6 prefix-list PL-TATA-TO-PE02-V6 seq 20 permit FC12::1/128
+ipv6 prefix-list PL-TATA-TO-PE02-V6 seq 30 permit FC13::1/128
+ipv6 prefix-list PL-TATA-TO-PE02-V6 seq 40 permit FC14::1/128
+ipv6 prefix-list PL-TATA-TO-PE02-V6 seq 50 permit FC15::1/128
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 10
+ description SKYNET AS300 COMMUNITY TO LOCAL RIB TAG 300
+ match community COMM-FROM-SKYNET-AS300
+ set tag 300
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 999
+ description PERMIT OTHER BGP ROUTES WITHOUT TAG CHANGE
+!
+route-map RM-TATA-OUT-V6-TEST permit 10
+ description TATA OUTBOUND V6 TO SKYNET - ONLY AUTHORIZED FC11-FC15 TEST PREFIXES
+ match ipv6 address prefix-list PL-TATA-TO-PE02-V6
+ set as-path prepend 500 500 500
+ set community 300:500 additive
+!
+route-map RM-TATA-OUT-V6-TEST deny 100
+ description BLOCK ALL OTHER V6 EXPORTS TO SKYNET
+!
+route-map RM-IN-FROM-SKYNET-AS300 permit 10
+ description SKYNET 172.16.0.0/24 ORIGIN MARKING
+ match ip address prefix-list PL-SKYNET-AS300-PUBLIC-V4
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET AS300 V4
+!
+route-map RM-TATA-OUT-V4-17219-PREPEND permit 10
+ description TATA OUTBOUND V4 TO SKYNET - ONLY AUTHORIZED 172.19 TEST PREFIXES
+ match ip address prefix-list PL-TATA-TO-PE02-V4
+ set as-path prepend 500 500 500
+ set community 300:500 additive
+!
+route-map RM-TATA-OUT-V4-17219-PREPEND deny 100
+ description BLOCK ALL OTHER V4 EXPORTS TO SKYNET
+!
+route-map RM-IN-FROM-SKYNET-AS300-V6 permit 10
+ description SKYNET AS300 INBOUND V6 - ONLY AUTHORIZED PROVIDER PREFIX
+ match ipv6 address prefix-list PL-SKYNET-FROM-PE02-V6
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300-V6 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET AS300 V6
+!
+route-map RM-IN-FROM-SKYNET-AS300-V4 permit 10
+ description SKYNET AS300 INBOUND V4 - ONLY AUTHORIZED PROVIDER PREFIX
+ match ip address prefix-list PL-SKYNET-FROM-PE02-V4
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300-V4 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET AS300 V4
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+alias exec drop clear ip bgp *
+banner login ^C
+
+                      <<< ISP-TATA >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                      <<< ISP-TATA >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+ntp update-calendar
+ntp server 200.160.7.186 prefer
+ntp server 186.192.158.147
+ntp server 200.20.186.76
+!
+end
+
+ISP-TATA#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+ISP-TATA(config)#line vty 0 4 
+ISP-TATA(config-line)#length 24 
+ISP-TATA(config-line)#line console 0 
+ISP-TATA(config-line)#length 24 
+ISP-TATA(config-line)#end 
+ISP-TATA#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE02-vIOS      Et0/1          120        R               Gi0/1
+SKNT-PE02-vIOS      Et0/2          120        R               Gi0/2
+
+Total entries displayed: 2
+
+ISP-TATA#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 10.202.0.1
+    IPV6: FC23::1
+    IP: 10.204.0.1
+    IPV6: FC68::1
+ISP-TATA#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+[OK]
+ISP-TATA#
+Sep 28 19:25:30.223 BRT: %SYS-5-CONFIG_I: Configured from console by eve on console
