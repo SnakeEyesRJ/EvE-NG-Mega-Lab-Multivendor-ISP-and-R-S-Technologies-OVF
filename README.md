@@ -30,9 +30,7 @@ The repository includes device configuration files in the [`02 - LAB Configs .TX
 
 - [Project Presentation (PDF)](05%20-%20Skynet%20Lab%20Documentation/Skynet-ISP-LAB-Presentation-V.12.0-EN-US.pdf)
 - [English Instructions](07%20-%20READ%20THE%20INSTRUCTIONS/READ-ME-IMPORTANT.txt)
-- [Portuguese Instructions](07%20-%20READ%20THE%20INSTRUCTIONS/README.PT-BR-IMPORTANTE.txt)
 - [Reset Configurations — English](WIPE-ALL-CONFIGS-BEFORE-START.txt)
-- [Reset Configurations — Portuguese](ZERAR-TODAS-AS-CONFIGS-ANTES-DE-COME%C3%87AR.txt)
 
 ## Technologies and Topics
 
