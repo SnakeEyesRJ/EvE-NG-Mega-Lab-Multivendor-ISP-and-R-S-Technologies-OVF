@@ -1,0 +1,375 @@
+﻿CE01-L3VPN-01#end 
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+CE01-L3VPN-01#terminal length 0 
+CE01-L3VPN-01#show running-config 
+Building configuration...
+
+Current configuration : 9618 bytes
+!
+! Last configuration change at 17:18:48 UTC Mon Sep 28 2026 by eve
+!
+version 15.4
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+no service dhcp
+!
+hostname CE01-L3VPN-01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$p86.$pnGrp2fJo7u.F81KXt33f.
+!
+no aaa new-model
+clock timezone UTC -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip source-route
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+ip vrf INTER-AS-L3VPN
+ rd 300:100
+ route-target export 300:100
+ route-target import 300:100
+!
+no ip dhcp use vrf connected
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.100.1
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username eve privilege 15 secret 5 $1$XVtG$GHfkDjUN8KX9eQIFkPgvr/
+!
+redundancy
+!
+lldp run
+no cdp run
+!
+ip ssh version 2
+!
+class-map match-any CM-TRANSIT-CONTROL
+ match access-group name QOS-TRANSIT-CONTROL
+class-map match-any CM-TRANSIT-SCAVENGER
+ match dscp cs1 
+class-map match-any CM-TRANSIT-VOICE
+ match dscp ef 
+class-map match-any CM-TRANSIT-CRITICAL
+ match dscp af31 
+!
+policy-map PM-QOS-CHILD-TRANSIT
+ class CM-TRANSIT-CONTROL
+  priority percent 5
+ class CM-TRANSIT-VOICE
+  priority percent 10
+ class CM-TRANSIT-CRITICAL
+  bandwidth percent 15 
+ class CM-TRANSIT-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-TRANSIT
+ class class-default
+  shape average 20000000
+   service-policy PM-QOS-CHILD-TRANSIT
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ description To-SKNT-PE01-BORDER
+ ip vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.111.2 255.255.255.0
+!
+interface Ethernet0/1
+ description To-ISP-HE
+ ip vrf forwarding INTER-AS-L3VPN
+ ip address 10.207.0.1 255.255.255.252
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface Ethernet0/2
+ description To-CE01-CUSTOMER-LAN
+ ip vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.245.1 255.255.255.252
+!
+interface Ethernet0/3
+ description NOT-USED
+ no ip address
+ shutdown
+!
+router bgp 301
+ bgp router-id 192.168.111.2
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ bgp sso route-refresh-enable
+ !
+ address-family ipv4 vrf INTER-AS-L3VPN
+  table-map RM-BGP-COMMUNITY-TO-RIB-TAG
+  network 192.168.245.0 mask 255.255.255.252
+  network 192.168.245.2 mask 255.255.255.255
+  neighbor 10.207.0.2 remote-as 400
+  neighbor 10.207.0.2 description To-ISP-HE-DIRECT-AS400
+  neighbor 10.207.0.2 activate
+  neighbor 10.207.0.2 route-map RM-CE01-FROM-HE-DIRECT in
+  neighbor 10.207.0.2 route-map RM-CE01-TO-HE-DIRECT out
+  neighbor 10.207.0.2 maximum-prefix 10 warning-only
+  neighbor 192.168.111.1 remote-as 300
+  neighbor 192.168.111.1 description To-SKNT-PE01-BORDER
+  neighbor 192.168.111.1 password 7 03214D0E0A0E236C1C594B50
+  neighbor 192.168.111.1 activate
+  neighbor 192.168.111.1 route-map RM-CE01-FROM-PE in
+  neighbor 192.168.111.1 route-map RM-CE01-TO-PE out
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+ip community-list standard COMM-FROM-VERIZON-AS200 permit 300:200
+ip community-list standard COMM-FROM-HE-AS400 permit 300:400
+ip community-list standard COMM-FROM-TATA-AS500 permit 300:500
+ip community-list standard COMM-FROM-SKYNET-AS300 permit 300:300
+ip community-list standard SKNT-LP-HIGH permit 300:250
+ip community-list standard SKNT-LP-NORMAL permit 300:150
+ip community-list standard SKNT-LP-BACKUP permit 300:90
+ip community-list standard SKNT-LP-LAST-RESORT permit 300:50
+ip community-list standard SKNT-RTBH permit 300:666
+ip community-list standard SKNT-NO-EXPORT-HE permit 300:701
+ip community-list standard SKNT-NO-EXPORT-TATA permit 300:702
+ip community-list standard SKNT-NO-EXPORT-VERIZON permit 300:703
+ip community-list standard SKNT-INTERNAL-ONLY permit 300:778
+!
+no ip http server
+no ip http secure-server
+ip route vrf INTER-AS-L3VPN 0.0.0.0 0.0.0.0 192.168.111.1
+!
+ip access-list extended QOS-TRANSIT-CONTROL
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+!
+!
+ip prefix-list PL-CE01-FROM-HE-DIRECT seq 10 permit 172.19.10.1/32
+ip prefix-list PL-CE01-FROM-HE-DIRECT seq 20 permit 172.19.20.1/32
+ip prefix-list PL-CE01-FROM-HE-DIRECT seq 30 permit 172.19.30.1/32
+ip prefix-list PL-CE01-FROM-HE-DIRECT seq 40 permit 172.19.40.1/32
+ip prefix-list PL-CE01-FROM-HE-DIRECT seq 50 permit 172.19.50.1/32
+!
+ip prefix-list PL-CE01-FROM-PE seq 1 permit 0.0.0.0/0
+ip prefix-list PL-CE01-FROM-PE seq 5 permit 192.168.98.0/24 le 32
+ip prefix-list PL-CE01-FROM-PE seq 10 permit 192.168.99.0/24 le 32
+ip prefix-list PL-CE01-FROM-PE seq 15 permit 192.168.246.0/30
+ip prefix-list PL-CE01-FROM-PE seq 20 permit 172.19.10.1/32
+ip prefix-list PL-CE01-FROM-PE seq 25 permit 172.19.20.1/32
+ip prefix-list PL-CE01-FROM-PE seq 30 permit 172.19.30.1/32
+ip prefix-list PL-CE01-FROM-PE seq 35 permit 172.19.40.1/32
+ip prefix-list PL-CE01-FROM-PE seq 40 permit 172.19.50.1/32
+ip prefix-list PL-CE01-FROM-PE seq 45 permit 192.168.222.0/24
+!
+ip prefix-list PL-CE01-RTBH-TEST seq 5 permit 192.168.245.2/32
+!
+ip prefix-list PL-CE01-TO-HE-DIRECT seq 10 permit 192.168.245.0/30
+!
+ip prefix-list PL-CE01-TO-PE seq 10 permit 192.168.245.0/30
+!
+route-map RM-CE01-TO-HE-DIRECT permit 10
+ match ip address prefix-list PL-CE01-TO-HE-DIRECT
+!
+route-map RM-CE01-TO-HE-DIRECT deny 100
+!
+route-map RM-CE01-FROM-HE-DIRECT permit 10
+ match ip address prefix-list PL-CE01-FROM-HE-DIRECT
+ set local-preference 50
+ set community 300:400 additive
+!
+route-map RM-CE01-FROM-HE-DIRECT deny 100
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 10
+ match community COMM-FROM-VERIZON-AS200
+ set tag 200
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 20
+ match community COMM-FROM-HE-AS400
+ set tag 400
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 30
+ match community COMM-FROM-TATA-AS500
+ set tag 500
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 40
+ match community COMM-FROM-SKYNET-AS300
+ set tag 300
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 999
+!
+route-map RM-CE01-FROM-PE permit 10
+ match ip address prefix-list PL-CE01-FROM-PE
+!
+route-map RM-CE01-FROM-PE deny 100
+!
+route-map RM-CE01-TO-PE permit 5
+ description CE01 CUSTOMER-TRIGGERED RTBH V2 - AUTHORIZED HOST ONLY
+ match ip address prefix-list PL-CE01-RTBH-TEST
+ set community 300:666 additive
+!
+route-map RM-CE01-TO-PE permit 10
+ description CE01 EXPORT TO PROVIDER - ONLY AUTHORIZED CUSTOMER LAN
+ match ip address prefix-list PL-CE01-TO-PE
+ set community 300:150 additive
+!
+route-map RM-CE01-TO-PE deny 100
+ description BLOCK EVERYTHING ELSE FROM CE01 TO PROVIDER
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+alias exec drop clear ip bgp *
+banner login ^C
+
+                   <<< CE01-L3VPN-01 >>>                   
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                   <<< CE01-L3VPN-01 >>>                   
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+ntp authentication-key 1 md5 0223125E07070D011E1E5B4C 7
+!
+end
+
+CE01-L3VPN-01#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+CE01-L3VPN-01(config)#line vty 0 4 
+CE01-L3VPN-01(config-line)#length 24 
+CE01-L3VPN-01(config-line)#line console 0 
+CE01-L3VPN-01(config-line)#length 24 
+CE01-L3VPN-01(config-line)#end 
+CE01-L3VPN-01#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+ISP-HE              Et0/1          120        B,R             Ethernet1/0/1
+SKNT-PE01-BORDER    Et0/0          120        R               Gi0/5
+
+Total entries displayed: 2
+
+CE01-L3VPN-01#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 172.19.10.1
+    IP: 192.168.111.1
+    IPV6: 2001:DB8:111::1
+CE01-L3VPN-01#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+[OK]
+CE01-L3VPN-01#
+*Sep 28 19:29:20.868 UTC: %SYS-5-CONFIG_I: Configured from console by eve on console
