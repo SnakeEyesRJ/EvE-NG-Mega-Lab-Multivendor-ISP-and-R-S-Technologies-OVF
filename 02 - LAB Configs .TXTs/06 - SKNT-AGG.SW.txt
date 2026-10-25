@@ -1,0 +1,495 @@
+﻿SKNT-AGG.SW# 
+SKNT-AGG.SW#end 
+Translating "end"
+
+Translating "end"
+
+Translating "end"
+% Unknown command or computer name, or unable to find computer address
+SKNT-AGG.SW#terminal length 0 
+SKNT-AGG.SW#show running-config 
+Building configuration...
+
+  
+Current configuration : 12001 bytes
+!
+! Last configuration change at 23:34:09 BRT Sun Oct 4 2026 by eve
+! NVRAM config last updated at 23:34:13 BRT Sun Oct 4 2026 by eve
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service compress-config
+!
+hostname SKNT-AGG.SW
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$PedH$Rc.j/bHbFDy6ROSmLy5Xv.
+!
+username eve privilege 15 secret 5 $1$hzs0$OGFNCwD5j/X.5aUbBBcNp0
+no aaa new-model
+clock timezone BRT -3 0
+!
+!
+!
+!
+!
+no ip source-route
+!
+!
+!
+no ip bootp server
+no ip domain-lookup
+ip domain-name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.100.1
+ip cef
+login on-failure log
+login on-success log
+ipv6 unicast-routing
+no ipv6 dhcp server join all-dhcp-servers
+ipv6 cef
+mpls label range 4000 4999
+mpls label protocol ldp
+mpls ldp neighbor 192.168.1.200 targeted ldp
+mpls ldp neighbor 192.168.1.1 targeted ldp
+mpls ldp neighbor 192.168.1.3 targeted ldp
+mpls ldp neighbor 192.168.1.5 targeted ldp
+mpls ldp neighbor 192.168.1.100 targeted ldp
+mpls ldp neighbor 192.168.1.250 targeted ldp
+mpls ldp neighbor 192.168.1.2 targeted ldp
+mpls ldp neighbor 192.168.1.251 targeted ldp
+mpls ldp neighbor 192.168.1.101 targeted ldp
+mpls ldp neighbor 192.168.1.4 targeted ldp
+mpls ldp graceful-restart
+mpls ldp session protection
+mpls ldp igp sync holddown 1
+mpls ldp discovery targeted-hello accept
+mpls traffic-eng tunnels
+no mpls ip propagate-ttl forwarded
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+spanning-tree vlan 1 priority 0
+!
+vlan internal allocation policy ascending
+lldp run
+no cdp run
+!
+!
+class-map match-all CM-COPP-CRITICAL
+ match access-group name COPP-CRITICAL
+class-map match-all CM-COPP-MONITORING
+ match access-group name COPP-MONITORING
+class-map match-all CM-COPP-MANAGEMENT
+ match access-group name COPP-MANAGEMENT
+class-map match-any CM-CRITICAL
+ match dscp af31 
+class-map match-any CM-CONTROL
+ match access-group name QOS-CONTROL-TRAFFIC
+class-map match-any CM-VOICE
+ match dscp ef 
+class-map match-any CM-SCAVENGER
+ match dscp cs1 
+!
+policy-map PM-QOS-CHILD-AGG-E1-1
+ class CM-CONTROL
+  priority percent 10
+ class CM-VOICE
+  priority percent 15
+ class CM-CRITICAL
+  bandwidth percent 20 
+ class CM-SCAVENGER
+  police 1000000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-CHILD-AGG-E1-0
+ class CM-CONTROL
+  priority percent 10
+ class CM-VOICE
+  priority percent 15
+ class CM-CRITICAL
+  bandwidth percent 20 
+ class CM-SCAVENGER
+  police 1000000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-AGG-E1-1
+ class class-default
+  shape average 20000000
+   service-policy PM-QOS-CHILD-AGG-E1-1
+policy-map PM-QOS-PARENT-AGG-E1-0
+ class class-default
+  shape average 20000000
+   service-policy PM-QOS-CHILD-AGG-E1-0
+policy-map PM-QOS-PARENT-AGG-PO1
+ class class-default
+  shape average 40000000
+   service-policy PM-QOS-CHILD-AGG-E1-1
+policy-map PM-COPP
+ class CM-COPP-CRITICAL
+  police 1000000 187500 187500 conform-action transmit  exceed-action drop 
+ class CM-COPP-MANAGEMENT
+  police 512000 96000 96000 conform-action transmit  exceed-action drop 
+ class CM-COPP-MONITORING
+  police 256000 48000 48000 conform-action transmit  exceed-action drop 
+ class class-default
+  police 64000 12000 12000 conform-action transmit  exceed-action drop 
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Internal-Transit
+ ip address 192.168.1.4 255.255.255.255
+ ip ospf network point-to-point
+ ipv6 address FC62::1/128
+ ospfv3 1 ipv6 area 0
+!
+interface Loopback1
+ description Provider-Lan
+ ip address 172.16.0.4 255.255.255.255
+!
+interface Ethernet0/0
+ description To-SKNT-PE04-vMX01
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree portfast edge trunk
+ spanning-tree bpduguard enable
+!
+interface Ethernet0/1
+ description To-SKNT-PE05-vMX02
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree portfast edge trunk
+ spanning-tree bpduguard enable
+!
+interface Ethernet0/2
+ description To-SKNT-PE06-POP01
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree portfast edge trunk
+ spanning-tree bpduguard enable
+!
+interface Ethernet0/3
+ description To-SKNT-PE07-POP02
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree portfast edge trunk
+ spanning-tree bpduguard enable
+!
+interface Ethernet1/0
+ description To-SKNT-P01-ISP
+ no switchport
+ ip address 10.0.0.30 255.255.255.252
+ duplex auto
+ ipv6 address FC24::/127
+ ipv6 enable
+ mpls traffic-eng tunnels
+ mpls label protocol ldp
+ mpls ip
+ ospfv3 1 ipv6 area 0
+ spanning-tree portfast edge
+ service-policy output PM-QOS-PARENT-AGG-E1-0
+ ip rsvp bandwidth 50000
+!
+interface Ethernet1/1
+ description To-SKNT-PE08-XRv
+ no switchport
+ ip address 10.34.0.1 255.255.255.252
+ ip ospf network point-to-point
+ ip ospf 1 area 0
+ ip ospf cost 30
+ duplex auto
+ ipv6 address FC34::1/127
+ ipv6 enable
+ mpls traffic-eng tunnels
+ mpls label protocol ldp
+ mpls ip
+ ospfv3 network point-to-point
+ ospfv3 cost 30
+ ospfv3 1 ipv6 area 0
+ spanning-tree portfast edge
+ service-policy output PM-QOS-PARENT-AGG-E1-1
+ ip rsvp bandwidth 50000
+!
+interface Ethernet1/2
+ description NOT-USED
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ spanning-tree portfast edge
+ spanning-tree bpduguard enable
+!
+interface Ethernet1/3
+ description NOT-USED
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ spanning-tree portfast edge
+ spanning-tree bpduguard enable
+!
+router ospfv3 1
+ router-id 192.168.1.4
+ !
+ address-family ipv6 unicast
+  router-id 192.168.1.4
+  auto-cost reference-bandwidth 10000
+ exit-address-family
+!
+router ospf 1
+ router-id 192.168.1.4
+ auto-cost reference-bandwidth 10000
+ network 10.0.0.28 0.0.0.3 area 0
+ network 10.34.0.0 0.0.0.3 area 0
+ network 192.168.1.4 0.0.0.0 area 0
+!
+router bgp 300
+ bgp router-id 192.168.1.4
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ bgp sso route-refresh-enable
+ neighbor 10.0.0.29 remote-as 300
+ neighbor 10.0.0.29 description To-SKNT-P01-ISP
+ neighbor 192.168.1.101 remote-as 300
+ neighbor 192.168.1.101 description To-SKNT-PE08-XRv
+ neighbor 192.168.1.101 update-source Loopback0
+ neighbor 192.168.1.101 timers 3 10
+ neighbor FC24::1 remote-as 300
+ neighbor FC24::1 description To-SKNT-P01-ISP
+ neighbor FC93::1 remote-as 300
+ neighbor FC93::1 description To-SKNT-PE08-XRv
+ neighbor FC93::1 update-source Loopback0
+ !
+ address-family ipv4
+  network 10.34.0.0 mask 255.255.255.252
+  network 172.16.0.4 mask 255.255.255.255
+  neighbor 10.0.0.29 activate
+  neighbor 10.0.0.29 send-community both
+  neighbor 10.0.0.29 route-reflector-client
+  neighbor 10.0.0.29 next-hop-self
+  neighbor 10.0.0.29 soft-reconfiguration inbound
+  neighbor 192.168.1.101 activate
+  neighbor 192.168.1.101 send-community both
+  neighbor 192.168.1.101 route-reflector-client
+  neighbor 192.168.1.101 next-hop-self
+  neighbor 192.168.1.101 soft-reconfiguration inbound
+  no neighbor FC24::1 activate
+  no neighbor FC93::1 activate
+  maximum-paths ibgp 32
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 10.0.0.29 activate
+  neighbor 10.0.0.29 send-community both
+  neighbor 192.168.1.101 activate
+  neighbor 192.168.1.101 send-community both
+  neighbor 192.168.1.101 route-reflector-client
+  neighbor 192.168.1.101 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6
+  network FC34::/127
+  neighbor FC24::1 activate
+  neighbor FC24::1 next-hop-self
+  neighbor FC24::1 soft-reconfiguration inbound
+  neighbor FC93::1 activate
+  neighbor FC93::1 send-community both
+  neighbor FC93::1 route-reflector-client
+  neighbor FC93::1 next-hop-self
+  neighbor FC93::1 soft-reconfiguration inbound
+  maximum-paths ibgp 32
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+no ip http server
+no ip http secure-server
+!
+ip ftp username eve
+ip ftp password 7 06231924404F0B395747405E
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh source-interface Loopback1
+ip ssh version 2
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+ip access-list extended COPP-CRITICAL
+ remark OSPF, BGP, LDP
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ip access-list extended COPP-MANAGEMENT
+ remark SSH from Provider-LAN only
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ip access-list extended COPP-MONITORING
+ remark ICMP diagnostics + NTP
+ permit icmp any any echo
+ permit icmp any any echo-reply
+ permit icmp any any ttl-exceeded
+ permit icmp any any unreachable
+ permit udp any any eq ntp
+ip access-list extended QOS-CONTROL-TRAFFIC
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ permit udp any any eq 1698
+ permit udp any eq 1698 any
+ permit udp any any eq 1699
+ permit udp any eq 1699 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ip access-list extended SSH-ALLOWED
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ deny   ip any any
+!
+!
+mpls ldp router-id Loopback0
+!
+!
+control-plane
+ service-policy input PM-COPP
+!
+banner login ^C
+
+
+                    <<< SKNT-AGG.SW >>>
+                             /\
+                            /  \
+                           / /\ \
+                          / /  \ \
+                         /_/____\_\
+
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+
+^C
+banner motd ^C
+
+
+                    <<< SKNT-AGG.SW >>>
+                             /\
+                            /  \
+                           / /\ \
+                          / /  \ \
+                         /_/____\_\
+
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+
+^C
+alias exec drop clear ip bgp *
+!
+line con 0
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+ntp source Loopback0
+ntp update-calendar
+ntp server 200.160.7.186 prefer
+ntp server 186.192.158.147
+ntp server 200.20.186.76
+!
+end
+
+SKNT-AGG.SW#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+SKNT-AGG.SW(config)#line vty 0 4 
+SKNT-AGG.SW(config-line)#length 24 
+SKNT-AGG.SW(config-line)#line console 0 
+SKNT-AGG.SW(config-line)#length 24 
+SKNT-AGG.SW(config-line)#end 
+SKNT-AGG.SW#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE08-XRv       Et1/1          120        R               Gi0/0/0/1
+SKNT-P01-ISP.evelab.Et1/0          15         R               Gi0/1
+
+Total entries displayed: 2
+
+SKNT-AGG.SW#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 10.34.0.2
+    IPV6: FC34::
+    IP: 10.0.0.29
+    IPV6: FC24::1
+SKNT-AGG.SW#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+
+  Compressed configuration from 12001 bytes to 5746 bytes[OK]
+SKNT-AGG.SW#
+Oct  4 23:37:56.094 BRT: %SYS-5-CONFIG_I: Configured from console by eve on console
