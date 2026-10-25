@@ -1,6 +1,6 @@
 # SKYNET-ISP — Service Provider Lab
 
-![Profile Banner](TWITCH-COVER-2026.png)
+![Profile Banner](PROFILE20%COVER-2026.png)
 
 A hands-on EVE-NG lab project focused on service provider networking, routing, switching, and multivendor network infrastructure technologies.
 
