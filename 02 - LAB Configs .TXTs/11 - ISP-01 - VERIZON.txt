@@ -1,0 +1,484 @@
+﻿ISP-VERIZON#end 
+Translating "end"
+
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+ISP-VERIZON#terminal length 0 
+ISP-VERIZON#show running-config 
+Building configuration...
+
+Current configuration : 13938 bytes
+!
+! Last configuration change at 17:18:23 BRT Mon Sep 28 2026 by eve
+!
+version 15.4
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+!
+hostname ISP-VERIZON
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$DYYH$dBVGC5c7MNZXxV1v1mAU51
+!
+no aaa new-model
+clock timezone BRT -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+no ip source-route
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.15.1
+ip name-server 192.168.100.1
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username eve privilege 15 secret 5 $1$/7Jn$qrcwp90GGvt8eUimonxRz0
+!
+redundancy
+!
+lldp run
+no cdp log mismatch duplex
+no cdp run
+!
+ip ftp username eve
+ip ftp password 7 047E1D0303204E6E5B495742
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh source-interface Loopback1
+ip ssh version 2
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+class-map match-any CM-TRANSIT-CONTROL
+ match access-group name QOS-TRANSIT-CONTROL
+ match dscp cs6 
+class-map match-any CM-TRANSIT-SCAVENGER
+ match dscp cs1 
+class-map match-any CM-TRANSIT-VOICE
+ match dscp ef 
+class-map match-any CM-TRANSIT-CRITICAL
+ match dscp af31 
+!
+policy-map PM-QOS-CHILD-TRANSIT
+ class CM-TRANSIT-CONTROL
+  priority percent 5
+ class CM-TRANSIT-VOICE
+  priority percent 10
+ class CM-TRANSIT-CRITICAL
+  bandwidth percent 15 
+ class CM-TRANSIT-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-TRANSIT
+ class class-default
+  shape average 20000000
+   service-policy PM-QOS-CHILD-TRANSIT
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback1
+ description Anuncio-eBGP1
+ ip address 172.19.10.1 255.255.255.255
+ ipv6 address FC11::1/128
+!
+interface Loopback2
+ description Anuncio-eBGP2
+ ip address 172.19.20.1 255.255.255.255
+ ipv6 address FC12::1/128
+!
+interface Loopback3
+ description Anuncio-eBGP3
+ ip address 172.19.30.1 255.255.255.255
+ ipv6 address FC13::1/128
+!
+interface Loopback4
+ description Anuncio-eBGP4
+ ip address 172.19.40.1 255.255.255.255
+ ipv6 address FC14::1/128
+!
+interface Loopback5
+ description Anuncio-eBGP5
+ ip address 172.19.50.1 255.255.255.255
+ ipv6 address FC15::1/128
+!
+interface Ethernet0/0
+ description To-PE-05-vMX-02
+ ip address 10.200.200.2 255.255.255.252
+ ipv6 address FC10::/127
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface Ethernet0/1
+ description NOT-USED
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ description To-SKNT-PE03-vMX03
+ ip address 10.209.0.2 255.255.255.252
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface Ethernet0/3
+ description NOT-USED
+ no ip address
+ shutdown
+!
+router bgp 200
+ bgp router-id 200.200.200.200
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ bgp sso route-refresh-enable
+ neighbor 10.200.200.1 remote-as 300
+ neighbor 10.200.200.1 description To-SKNT-PE05-vMX02
+ neighbor 10.200.200.1 password 7 15371D09082B29047A636777
+ neighbor 10.209.0.1 remote-as 300
+ neighbor 10.209.0.1 description To-SKNT-PE03-vMX03
+ neighbor 10.209.0.1 password 7 112C0F001B13092C567A7971
+ neighbor FC10::1 remote-as 300
+ neighbor FC10::1 description To-SKNT-PE05-vMX02-v6
+ neighbor FC10::1 password 7 03214D0E0A0E236C1C594B50
+ !
+ address-family ipv4
+  table-map RM-BGP-COMMUNITY-TO-RIB-TAG
+  network 172.19.10.1 mask 255.255.255.255
+  network 172.19.20.1 mask 255.255.255.255
+  network 172.19.30.1 mask 255.255.255.255
+  network 172.19.40.1 mask 255.255.255.255
+  network 172.19.50.1 mask 255.255.255.255
+  neighbor 10.200.200.1 activate
+  neighbor 10.200.200.1 send-community both
+  neighbor 10.200.200.1 soft-reconfiguration inbound
+  neighbor 10.200.200.1 route-map RM-IN-FROM-SKYNET-AS300-V4 in
+  neighbor 10.200.200.1 route-map RM-VERIZON-OUT-V4-17219 out
+  neighbor 10.200.200.1 maximum-prefix 20 warning-only
+  neighbor 10.209.0.1 activate
+  neighbor 10.209.0.1 send-community both
+  neighbor 10.209.0.1 soft-reconfiguration inbound
+  neighbor 10.209.0.1 route-map RM-IN-FROM-SKYNET-AS300-V4 in
+  neighbor 10.209.0.1 route-map RM-VERIZON-OUT-V4-17219 out
+  neighbor 10.209.0.1 maximum-prefix 20 warning-only
+  no neighbor FC10::1 activate
+ exit-address-family
+ !
+ address-family ipv6
+  network FC11::1/128
+  network FC12::1/128
+  network FC13::1/128
+  network FC14::1/128
+  network FC15::1/128
+  neighbor FC10::1 activate
+  neighbor FC10::1 send-community both
+  neighbor FC10::1 soft-reconfiguration inbound
+  neighbor FC10::1 route-map RM-IN-FROM-SKYNET-AS300-V6 in
+  neighbor FC10::1 route-map RM-VERIZON-OUT-V6-TEST out
+  neighbor FC10::1 maximum-prefix 10 warning-only
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+ip community-list standard COMM-FROM-VERIZON-AS200 permit 300:200
+ip community-list standard COMM-FROM-SKYNET-AS300 permit 300:300
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.200.200.1
+!
+ip access-list extended QOS-TRANSIT-CONTROL
+ remark SKYNET-QOS-TRANSIT-CONTROL-PLANE-AND-ROUTING
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ permit udp any any eq 1698
+ permit udp any eq 1698 any
+ permit udp any any eq 1699
+ permit udp any eq 1699 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ permit 46 any any
+ip access-list extended SSH-ALLOWED
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ deny   ip any any
+!
+!
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 10 permit 172.16.0.0/24
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 20 permit 192.168.98.0/24 le 32
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 30 permit 192.168.99.0/24 le 32
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 40 permit 192.168.111.0/24
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 50 permit 192.168.222.0/24
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 60 permit 192.168.245.0/30
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 70 permit 192.168.246.0/30
+!
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 10 permit 172.16.0.0/24
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 20 permit 192.168.98.0/24 le 32
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 30 permit 192.168.99.0/24 le 32
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 40 permit 192.168.111.0/24
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 50 permit 192.168.222.0/24
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 60 permit 192.168.245.0/30
+ip prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4 seq 70 permit 192.168.246.0/30
+!
+ip prefix-list PL-VERIZON-TO-SKYNET-V4 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-VERIZON-TO-SKYNET-V4 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-VERIZON-TO-SKYNET-V4 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-VERIZON-TO-SKYNET-V4 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-VERIZON-TO-SKYNET-V4 seq 50 permit 172.19.50.1/32
+!
+ip prefix-list PL-VERIZON-TO-VMX03-ONLY-17219 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-VERIZON-TO-VMX03-ONLY-17219 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-VERIZON-TO-VMX03-ONLY-17219 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-VERIZON-TO-VMX03-ONLY-17219 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-VERIZON-TO-VMX03-ONLY-17219 seq 50 permit 172.19.50.1/32
+ipv6 route ::/0 FC10::1
+!
+!
+ipv6 prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V6 seq 10 permit FC16::/48
+!
+ipv6 prefix-list PL-VERIZON-TO-SKYNET-V6 seq 10 permit FC11::1/128
+ipv6 prefix-list PL-VERIZON-TO-SKYNET-V6 seq 20 permit FC12::1/128
+ipv6 prefix-list PL-VERIZON-TO-SKYNET-V6 seq 30 permit FC13::1/128
+ipv6 prefix-list PL-VERIZON-TO-SKYNET-V6 seq 40 permit FC14::1/128
+ipv6 prefix-list PL-VERIZON-TO-SKYNET-V6 seq 50 permit FC15::1/128
+!
+ipv6 prefix-list PL-VERIZON-V6-TEST seq 10 permit FC11::1/128
+ipv6 prefix-list PL-VERIZON-V6-TEST seq 20 permit FC12::1/128
+ipv6 prefix-list PL-VERIZON-V6-TEST seq 30 permit FC13::1/128
+ipv6 prefix-list PL-VERIZON-V6-TEST seq 40 permit FC14::1/128
+ipv6 prefix-list PL-VERIZON-V6-TEST seq 50 permit FC15::1/128
+route-map RM-VERIZON-TO-VMX03-ONLY-17219 permit 10
+ description VERIZON OUTBOUND 172.19 TO PE03 - ADD COMMUNITY 300:200
+ match ip address prefix-list PL-VERIZON-TO-VMX03-ONLY-17219
+ set community 300:200 additive
+!
+route-map RM-VERIZON-TO-VMX03-ONLY-17219 deny 100
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 10
+ description SKYNET AS300 COMMUNITY TO LOCAL RIB TAG 300
+ match community COMM-FROM-SKYNET-AS300
+ set tag 300
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 999
+ description PERMIT OTHER BGP ROUTES WITHOUT TAG CHANGE
+!
+route-map RM-VERIZON-OUT-V4-17219-PREPEND permit 10
+ description VERIZON OUTBOUND TO SKYNET - ONLY 172.19 TEST PREFIXES
+ match ip address prefix-list PL-VERIZON-TO-VMX03-ONLY-17219
+ set as-path prepend 200 200
+ set community 300:200 additive
+!
+route-map RM-VERIZON-OUT-V4-17219-PREPEND deny 100
+ description BLOCK ALL OTHER V4 EXPORTS TO SKYNET
+!
+route-map RM-IN-FROM-SKYNET-AS300 permit 10
+ description SKYNET 172.16.0.0/24 ORIGIN MARKING
+ match ip address prefix-list PL-SKYNET-AS300-PUBLIC-V4
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET AS300 V4
+!
+route-map RM-VERIZON-OUT-V4-17219 permit 10
+ description VERIZON OUTBOUND V4 TO SKYNET - ONLY AUTHORIZED 172.19 TEST PREFIXES
+ match ip address prefix-list PL-VERIZON-TO-SKYNET-V4
+ set as-path prepend 200 200
+ set community 300:200 additive
+!
+route-map RM-VERIZON-OUT-V4-17219 deny 100
+ description BLOCK ALL OTHER V4 EXPORTS TO SKYNET
+!
+route-map RM-VERIZON-OUT-V6-TEST permit 10
+ description VERIZON OUTBOUND V6 TO SKYNET - ONLY AUTHORIZED FC11-FC15 TEST PREFIXES
+ match ipv6 address prefix-list PL-VERIZON-TO-SKYNET-V6
+ set as-path prepend 200 200
+ set community 300:200 additive
+!
+route-map RM-VERIZON-OUT-V6-TEST deny 100
+ description BLOCK ALL OTHER V6 EXPORTS TO SKYNET
+!
+route-map ISP2 permit 10
+ description VERIZON OUTBOUND TO SKYNET - KEEP PREPEND + ADD COMMUNITY 300:200
+ set as-path prepend 200 200
+ set community 300:200 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300-V6 permit 10
+ description SKYNET AS300 INBOUND V6 - ONLY AUTHORIZED PROVIDER PREFIX
+ match ipv6 address prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V6
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300-V6 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET AS300 V6
+!
+route-map RM-IN-FROM-SKYNET-AS300-V4 permit 10
+ description SKYNET AS300 INBOUND V4 - ONLY AUTHORIZED SKYNET / SERVICE PREFIXES
+ match ip address prefix-list PL-SKYNET-FROM-VERIZON-PEERS-V4
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-SKYNET-AS300-V4 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET AS300 V4
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+alias exec drop clear ip bgp *
+banner login ^C
+
+
+                    <<< ISP-VERIZON >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                    <<< ISP-VERIZON >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+ntp update-calendar
+ntp server 200.160.7.186 prefer
+ntp server 186.192.158.147
+ntp server 200.20.186.76
+!
+end
+
+ISP-VERIZON#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+ISP-VERIZON(config)#line vty 0 4 
+ISP-VERIZON(config-line)#length 24 
+ISP-VERIZON(config-line)#line console 0 
+ISP-VERIZON(config-line)#length 24 
+ISP-VERIZON(config-line)#end 
+ISP-VERIZON#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE03-vMX03     Et0/2          120        B,R             ge-0/0/2
+SKNT-PE05-vMX02     Et0/0          120        B,R             ge-0/0/0
+
+Total entries displayed: 2
+
+ISP-VERIZON#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 192.168.1.251
+    IP: 192.168.1.5
+ISP-VERIZON#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+[OK]
+ISP-VERIZON#
+Sep 28 19:25:47.433 BRT: %SYS-5-CONFIG_I: Configured from console by eve on console
