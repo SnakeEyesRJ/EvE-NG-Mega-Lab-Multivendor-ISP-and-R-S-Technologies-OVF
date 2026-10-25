@@ -1,0 +1,441 @@
+﻿ISP-SPARKLE#end 
+Translating "end"
+
+Translating "end"
+
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+ISP-SPARKLE#terminal length 0 
+ISP-SPARKLE#show running-config 
+Building configuration...
+
+Current configuration : 11026 bytes
+!
+! Last configuration change at 23:46:24 BRT Sun Oct 4 2026 by eve
+! NVRAM config last updated at 23:46:24 BRT Sun Oct 4 2026 by eve
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname ISP-SPARKLE
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$XToq$ZmBzoiKeQJC8qoTknrnDI1
+!
+no aaa new-model
+clock timezone BRT -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip domain name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.100.1
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username eve privilege 15 secret 5 $1$jDBn$6u8hi/oAJ9tA4W1MlzVe70
+!
+redundancy
+!
+lldp run
+no cdp run
+!
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh source-interface Loopback1
+ip ssh version 2
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+class-map match-any CM-TRANSIT-CONTROL
+ match access-group name QOS-TRANSIT-CONTROL
+ match dscp cs6 
+class-map match-any CM-TRANSIT-SCAVENGER
+ match dscp cs1 
+class-map match-any CM-TRANSIT-VOICE
+ match dscp ef 
+class-map match-any CM-TRANSIT-CRITICAL
+ match dscp af31 
+!
+policy-map PM-QOS-CHILD-TRANSIT
+ class CM-TRANSIT-CONTROL
+  priority percent 5
+ class CM-TRANSIT-VOICE
+  priority percent 10
+ class CM-TRANSIT-CRITICAL
+  bandwidth percent 15 
+ class CM-TRANSIT-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-TRANSIT
+ class class-default
+  shape average 20000000
+   service-policy PM-QOS-CHILD-TRANSIT
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback1
+ description Anuncio-eBGP1
+ ip address 172.19.10.1 255.255.255.255
+ ipv6 address FC11::1/128
+ ipv6 enable
+!
+interface Loopback2
+ description Anuncio-eBGP2
+ ip address 172.19.20.1 255.255.255.255
+ ipv6 address FC12::1/128
+ ipv6 enable
+!
+interface Loopback3
+ description Anuncio-eBGP3
+ ip address 172.19.30.1 255.255.255.255
+ ipv6 address FC13::1/128
+ ipv6 enable
+!
+interface Loopback4
+ description Anuncio-eBGP4
+ ip address 172.19.40.1 255.255.255.255
+ ipv6 address FC14::1/128
+ ipv6 enable
+!
+interface Loopback5
+ description Anuncio-eBGP5
+ ip address 172.19.50.1 255.255.255.255
+ ipv6 address FC15::1/128
+ ipv6 enable
+!
+interface Ethernet0/0
+ description To-SKNT-PE08-XRv
+ ip address 10.201.201.2 255.255.255.252
+ ipv6 address FC32::/127
+ ipv6 enable
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface Ethernet0/1
+ description NOT-USED
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ description NOT-USED
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ description NOT-USED
+ no ip address
+ shutdown
+!
+router bgp 777
+ bgp router-id 201.201.201.201
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ bgp sso route-refresh-enable
+ no bgp default ipv4-unicast
+ neighbor 10.201.201.1 remote-as 300
+ neighbor 10.201.201.1 description To-SKNT-PE08-XRv
+ neighbor 10.201.201.1 ttl-security hops 1
+ neighbor 10.201.201.1 password 7 072A374942081B2545425959
+ neighbor 10.201.201.1 timers 3 10
+ neighbor FC32::1 remote-as 300
+ neighbor FC32::1 description To-SKNT-PE08-XRv
+ neighbor FC32::1 ttl-security hops 1
+ neighbor FC32::1 password 7 01361001570A042F731C1C5C
+ !
+ address-family ipv4
+  network 172.19.10.1 mask 255.255.255.255
+  network 172.19.20.1 mask 255.255.255.255
+  network 172.19.30.1 mask 255.255.255.255
+  network 172.19.40.1 mask 255.255.255.255
+  network 172.19.50.1 mask 255.255.255.255
+  neighbor 10.201.201.1 activate
+  neighbor 10.201.201.1 send-community both
+  neighbor 10.201.201.1 soft-reconfiguration inbound
+  neighbor 10.201.201.1 route-map RM-IN-FROM-XRV-AS300-V4 in
+  neighbor 10.201.201.1 route-map RM-OUT-TO-XRV-AS300-V4 out
+  neighbor 10.201.201.1 maximum-prefix 10 warning-only
+ exit-address-family
+ !
+ address-family ipv6
+  network FC11::1/128
+  network FC12::1/128
+  network FC13::1/128
+  network FC14::1/128
+  network FC15::1/128
+  network FC32::/127
+  neighbor FC32::1 activate
+  neighbor FC32::1 send-community both
+  neighbor FC32::1 soft-reconfiguration inbound
+  neighbor FC32::1 route-map RM-IN-FROM-XRV-AS300-V6 in
+  neighbor FC32::1 route-map RM-OUT-TO-XRV-AS300-V6 out
+  neighbor FC32::1 maximum-prefix 10 warning-only
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+ip community-list standard COMM-FROM-SKYNET-AS300 permit 300:300
+ip community-list standard COMM-FROM-SPARKLE-AS777 permit 300:777
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.201.201.1
+!
+ip access-list extended QOS-TRANSIT-CONTROL
+ remark SKYNET-QOS-TRANSIT-CONTROL-PLANE-AND-ROUTING
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ permit udp any any eq 1698
+ permit udp any eq 1698 any
+ permit udp any any eq 1699
+ permit udp any eq 1699 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ permit 46 any any
+ip access-list extended SSH-ALLOWED
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ deny   ip any any
+!
+!
+ip prefix-list PL-SKYNET-FROM-XRV-V4 seq 10 permit 172.16.0.0/24
+!
+ip prefix-list PL-SPARKLE-FROM-XRV-V4 seq 10 permit 172.16.0.0/24
+!
+ip prefix-list PL-SPARKLE-TO-XRV-V4 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-SPARKLE-TO-XRV-V4 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-SPARKLE-TO-XRV-V4 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-SPARKLE-TO-XRV-V4 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-SPARKLE-TO-XRV-V4 seq 50 permit 172.19.50.1/32
+ipv6 route ::/0 FC32::1
+!
+!
+ipv6 prefix-list PL-SKYNET-FROM-XRV-V6 seq 10 permit FC16::/48
+!
+ipv6 prefix-list PL-SPARKLE-FROM-XRV-V6 seq 10 permit FC16::/48
+!
+ipv6 prefix-list PL-SPARKLE-TO-XRV-V6 seq 10 permit FC11::1/128
+ipv6 prefix-list PL-SPARKLE-TO-XRV-V6 seq 20 permit FC12::1/128
+ipv6 prefix-list PL-SPARKLE-TO-XRV-V6 seq 30 permit FC13::1/128
+ipv6 prefix-list PL-SPARKLE-TO-XRV-V6 seq 40 permit FC14::1/128
+ipv6 prefix-list PL-SPARKLE-TO-XRV-V6 seq 50 permit FC15::1/128
+route-map RM-IN-FROM-XRV-AS300-V4 permit 10
+ description SKYNET XRv INBOUND V4 - ONLY AUTHORIZED SKYNET PREFIX
+ match ip address prefix-list PL-SKYNET-FROM-XRV-V4
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-XRV-AS300-V4 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET XRV V4
+!
+route-map RM-IN-FROM-XRV-AS300-V6 permit 10
+ description SKYNET XRv INBOUND V6 - ONLY AUTHORIZED SKYNET PREFIX
+ match ipv6 address prefix-list PL-SKYNET-FROM-XRV-V6
+ set community 300:300 additive
+!
+route-map RM-IN-FROM-XRV-AS300-V6 deny 100
+ description DROP EVERYTHING ELSE FROM SKYNET XRV V6
+!
+route-map RM-SPARKLE-FROM-XRV-V4 permit 10
+ match ip address prefix-list PL-SPARKLE-FROM-XRV-V4
+!
+route-map RM-SPARKLE-FROM-XRV-V4 deny 999
+!
+route-map RM-SPARKLE-FROM-XRV-V6 permit 10
+ match ipv6 address prefix-list PL-SPARKLE-FROM-XRV-V6
+!
+route-map RM-SPARKLE-FROM-XRV-V6 deny 999
+!
+route-map RM-SPARKLE-TO-XRV-V4 permit 10
+ match ip address prefix-list PL-SPARKLE-TO-XRV-V4
+!
+route-map RM-SPARKLE-TO-XRV-V4 deny 999
+!
+route-map RM-SPARKLE-TO-XRV-V6 permit 10
+ match ipv6 address prefix-list PL-SPARKLE-TO-XRV-V6
+!
+route-map RM-SPARKLE-TO-XRV-V6 deny 999
+!
+route-map RM-OUT-TO-XRV-AS300-V4 permit 10
+ description SPARKLE OUTBOUND V4 TO XRV - ONLY AUTHORIZED 172.19 TEST PREFIXES
+ match ip address prefix-list PL-SPARKLE-TO-XRV-V4
+ set as-path prepend 777 777 777
+ set community 300:777 additive
+!
+route-map RM-OUT-TO-XRV-AS300-V4 deny 100
+ description BLOCK ALL OTHER V4 EXPORTS TO XRV
+!
+route-map RM-OUT-TO-XRV-AS300-V6 permit 10
+ description SPARKLE OUTBOUND V6 TO XRV - ONLY AUTHORIZED FC11-FC15 TEST PREFIXES
+ match ipv6 address prefix-list PL-SPARKLE-TO-XRV-V6
+ set as-path prepend 777 777 777
+ set community 300:777 additive
+!
+route-map RM-OUT-TO-XRV-AS300-V6 deny 100
+ description BLOCK ALL OTHER V6 EXPORTS TO XRV
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+alias exec drop clear ip bgp *
+banner login ^C
+
+                     <<< ISP-SPARKLE >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+
+^C
+banner motd ^C
+
+                     <<< ISP-SPARKLE >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+
+^C
+!
+line con 0
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+ntp update-calendar
+ntp server 200.160.7.186 prefer
+ntp server 186.192.158.147
+ntp server 200.20.186.76
+!
+end
+
+ISP-SPARKLE#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+ISP-SPARKLE(config)#line vty 0 4 
+ISP-SPARKLE(config-line)#length 24 
+ISP-SPARKLE(config-line)#line console 0 
+ISP-SPARKLE(config-line)#length 24 
+ISP-SPARKLE(config-line)#end 
+ISP-SPARKLE#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE08-XRv       Et0/0          120        R               Gi0/0/0/0
+
+Total entries displayed: 1
+
+ISP-SPARKLE#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 10.201.201.1
+    IPV6: FC32::1
+ISP-SPARKLE#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+[OK]
+ISP-SPARKLE#
+Oct  5 02:46:42.718: %SYS-5-CONFIG_I: Configured from console by eve on console
