@@ -2,6 +2,15 @@
 
 A hands-on EVE-NG lab project focused on service provider networking, routing, and network infrastructure technologies.
 
+## Network Topology
+
+The diagram below illustrates the SKYNET-ISP Service Provider Lab topology.
+
+![SKYNET-ISP Lab Network Topology](03%20-%20Topology%20Screenshot/SKYNET-ISP-LAB-TOPOLOGY.png)
+
+[View the full-resolution topology](03%20-%20Topology%20Screenshot/SKYNET-ISP-LAB-TOPOLOGY.png)
+
+
 ## Project Contents
 
 - **Full Lab VM:** Complete lab VM archive, hosted on Google Drive.
