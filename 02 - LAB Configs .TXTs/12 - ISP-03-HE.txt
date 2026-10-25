@@ -1,0 +1,485 @@
+﻿[~ISP-HE]
+[~ISP-HE]return
+<ISP-HE>screen-length 0 temporary
+Info: The configuration takes effect on the current user terminal interface only.
+<ISP-HE>system-view
+Enter system view, return user view with return command.
+[~ISP-HE]display current-configuration
+!Software Version V800R011C00SPC607B607
+!Last configuration was updated at 2026-08-10 04:50:31-03:00
+!Last configuration was saved at 2026-09-11 20:29:15-03:00
+#
+clock timezone BRT minus 03:00:00
+#
+sysname ISP-HE
+#
+set neid 18a89
+#
+FTP server enable
+#
+vsm on-board-mode enable
+#
+undo user-security-policy enable
+#
+snmp-agent trap type base-trap
+#
+ntp-service server disable
+ntp-service ipv6 server disable
+ntp-service unicast-server 186.192.158.147
+ntp-service unicast-server 200.20.186.76
+ntp-service unicast-server 200.160.7.186 preference
+#
+icmp rate-limit disable
+#
+aaa
+ local-user eve password irreversible-cipher $1c$/sJ`>X3VvM$lE8^!})9s/7KT))KM'eND1Ii4#j_>V&z#c+DlyZ:$
+ local-user eve service-type ftp telnet ssh http
+ local-user eve level 3
+ local-user eve state block fail-times 3 interval 5
+ local-user eve ftp-directory cfcard:/CONFIGS-ISP
+ #
+ authentication-scheme default0
+ #
+ authentication-scheme default1
+ #
+ authentication-scheme default
+  authentication-mode local radius
+ #
+ authorization-scheme default
+ #
+ accounting-scheme default0
+ #
+ accounting-scheme default1
+ #
+ domain default0
+ #
+ domain default1
+ #
+ domain default_admin
+ #
+ domain evelab.com
+#
+license
+#
+interface Ethernet1/0/0
+ description NOT-USED
+ shutdown
+ undo dcn
+ undo dcn mode vlan
+#
+interface Ethernet1/0/1
+ description To-CE01-L3VPN-01
+ undo shutdown
+ ip address 10.207.0.2 255.255.255.252
+ undo dcn
+ undo dcn mode vlan
+#
+interface Ethernet1/0/2
+ description To-SKNT-PE01-BORDER
+ undo shutdown
+ ipv6 enable
+ ip address 10.206.0.2 255.255.255.252
+ ipv6 address FC99::/127
+ undo dcn mode vlan
+#
+interface Ethernet1/0/3
+ description NOT-USED
+ shutdown
+ undo dcn mode vlan
+#
+interface Ethernet1/0/4
+ description NOT-USED
+ shutdown
+ undo dcn mode vlan
+#
+interface Ethernet1/0/5
+ description To-PE-04-vMX-01
+ undo shutdown
+ ipv6 enable
+ ip address 10.205.0.2 255.255.255.252
+ ipv6 address FC77::/127
+ undo dcn mode vlan
+#
+interface Ethernet1/0/6
+ description NOT-USED
+ shutdown
+ undo dcn mode vlan
+#
+interface Ethernet1/0/7
+ description NOT-USED
+ shutdown
+ undo dcn mode vlan
+#
+interface Ethernet1/0/8
+ description NOT-USED
+ shutdown
+ undo dcn mode vlan
+#
+interface Ethernet1/0/9
+ description NOT-USED
+ shutdown
+ undo dcn mode vlan
+#
+interface GigabitEthernet0/0/0
+ undo shutdown
+#
+interface LoopBack1
+ description Anuncio-eBGP1
+ ipv6 enable
+ ip address 172.19.10.1 255.255.255.255
+ ipv6 address FC11::1/128
+#
+interface LoopBack2
+ description Anuncio-eBGP2
+ ipv6 enable
+ ip address 172.19.20.1 255.255.255.255
+ ipv6 address FC12::1/128
+#
+interface LoopBack3
+ description Anuncio-eBGP3
+ ipv6 enable
+ ip address 172.19.30.1 255.255.255.255
+ ipv6 address FC13::1/128
+#
+interface LoopBack4
+ description Anuncio-eBGP4
+ ipv6 enable
+ ip address 172.19.40.1 255.255.255.255
+ ipv6 address FC14::1/128
+#
+interface LoopBack5
+ description Anuncio-eBGP5
+ ipv6 enable
+ ip address 172.19.50.1 255.255.255.255
+ ipv6 address FC15::1/128
+#
+interface NULL0
+ description BLACKHOLE-ROUTES
+#
+bgp 400
+ router-id 40.40.40.40
+ graceful-restart
+ peer 10.205.0.1 as-number 300
+ peer 10.205.0.1 description To-PE-04-vMX-01
+ peer 10.205.0.1 password cipher %^%#I~IwSQM<e6{-u2BWXeN,"oPZCA=;cI-2zlOI!yL1%^%#
+ peer 10.206.0.1 as-number 300
+ peer 10.206.0.1 description To-SKNT-PE01-BORDER
+ peer 10.206.0.1 password cipher %^%#kvNKBH{/pU.`gA.2K8{/![2B%1_G0Ik{ap5,y8]P%^%#
+ peer 10.207.0.1 as-number 301
+ peer 10.207.0.1 description To-CE01-L3VPN-01-AS301
+ peer FC77::1 as-number 300
+ peer FC77::1 description To-PE-04-vMX-01
+ peer FC77::1 password cipher %^%#*]8dNdnx79pZ%^Hd3v>H:-Y@%b$Be:<`[n3#sFeJ%^%#
+ peer FC99::1 as-number 300
+ peer FC99::1 description To-SKNT-PE-01-BORDER
+ peer FC99::1 password cipher %^%#EuQ^>4+&lI7gc<#1OCTY}{8h-7wu];R'nyI"vBE9%^%#
+ #
+ ipv4-family unicast
+  undo synchronization
+  network 172.19.10.1 255.255.255.255
+  network 172.19.20.1 255.255.255.255
+  network 172.19.30.1 255.255.255.255
+  network 172.19.40.1 255.255.255.255
+  network 172.19.50.1 255.255.255.255
+  auto-frr
+  peer 10.205.0.1 enable
+  peer 10.205.0.1 ip-prefix V4 export
+  peer 10.205.0.1 route-policy IMPORT-FROM-SKYNET-AS300 import
+  peer 10.205.0.1 route-policy AS-PREPEND-HE export
+  peer 10.205.0.1 label-route-capability
+  peer 10.205.0.1 keep-all-routes
+  peer 10.206.0.1 enable
+  peer 10.206.0.1 ip-prefix V4 export
+  peer 10.206.0.1 route-policy IMPORT-FROM-SKYNET-AS300 import
+  peer 10.206.0.1 route-policy AS-PREPEND-HE export
+  peer 10.206.0.1 keep-all-routes
+  peer 10.207.0.1 enable
+  peer 10.207.0.1 route-policy IMPORT-FROM-CE01-AS301 import
+  peer 10.207.0.1 route-policy EXPORT-TO-CE01-AS301 export
+ #
+ ipv6-family unicast
+  undo synchronization
+  network FC11::1 128
+  network FC12::1 128
+  network FC13::1 128
+  network FC14::1 128
+  network FC15::1 128
+  peer FC77::1 enable
+  peer FC77::1 ipv6-prefix V6 export
+  peer FC77::1 route-policy IMPORT-FROM-SKYNET-AS300-V6 import
+  peer FC77::1 route-policy AS-PREPEND-HE export
+  peer FC99::1 enable
+  peer FC99::1 ipv6-prefix V6 export
+  peer FC99::1 route-policy IMPORT-FROM-SKYNET-AS300-V6 import
+  peer FC99::1 route-policy AS-PREPEND-HE export
+#
+undo dcn
+#
+route-policy AS-PREPEND-HE permit node 1
+ description AS-PREPEND-HE-2-SKYNET
+ apply as-path 400 400 additive
+#
+route-policy EXPORT-TO-CE01-AS301 permit node 10
+ if-match ip-prefix HE-AS400-TO-CE01-V4
+ apply as-path 400 400 additive
+#
+route-policy EXPORT-TO-CE01-AS301 deny node 100
+#
+route-policy IMPORT-FROM-CE01-AS301 permit node 10
+ if-match ip-prefix CE01-AS301-IN-V4
+#
+route-policy IMPORT-FROM-CE01-AS301 deny node 100
+#
+route-policy IMPORT-FROM-SKYNET-AS300 permit node 10
+ if-match ip-prefix SKYNET-AS300-PUBLIC-V4
+#
+route-policy IMPORT-FROM-SKYNET-AS300 deny node 100
+#
+route-policy IMPORT-FROM-SKYNET-AS300-V6 permit node 10
+ if-match ipv6 address prefix-list SKYNET-AS300-PUBLIC-V6
+#
+route-policy IMPORT-FROM-SKYNET-AS300-V6 deny node 100
+#
+ip ip-prefix CE01-AS301-IN-V4 index 10 permit 192.168.245.0 30
+ip ip-prefix HE-AS400-TO-CE01-V4 index 10 permit 172.19.10.1 32
+ip ip-prefix HE-AS400-TO-CE01-V4 index 20 permit 172.19.20.1 32
+ip ip-prefix HE-AS400-TO-CE01-V4 index 30 permit 172.19.30.1 32
+ip ip-prefix HE-AS400-TO-CE01-V4 index 40 permit 172.19.40.1 32
+ip ip-prefix HE-AS400-TO-CE01-V4 index 50 permit 172.19.50.1 32
+ip ip-prefix SKYNET-AS300-PUBLIC-V4 index 10 permit 172.16.0.0 24
+ip ip-prefix V4 index 10 permit 172.19.10.1 32
+ip ip-prefix V4 index 20 permit 172.19.20.1 32
+ip ip-prefix V4 index 30 permit 172.19.30.1 32
+ip ip-prefix V4 index 40 permit 172.19.40.1 32
+ip ip-prefix V4 index 50 permit 172.19.50.1 32
+#
+ip route-static 0.0.0.0 0.0.0.0 10.205.0.1
+ip route-static 0.0.0.0 0.0.0.0 10.206.0.1 preference 100
+ip route-static 192.168.1.4 255.255.255.255 10.206.0.1 description NTP-AGG-LOOPBACK
+ip route-static 192.168.98.0 255.255.255.0 10.207.0.1 track nqa SKYNET CE01L3VPNLINK
+ip route-static 192.168.99.0 255.255.255.0 10.206.0.1 description RETURN-CE02-LOOPBACKS-VIA-BORDER
+ip route-static 192.168.111.0 255.255.255.0 10.207.0.1 track nqa SKYNET CE01L3VPNLINK
+ip route-static 192.168.222.0 255.255.255.0 10.206.0.1 description RETURN-CE02-LAN-VIA-BORDER
+ip route-static 192.168.246.0 255.255.255.252 10.206.0.1 description RETURN-CE02-WAN-VIA-BORDER
+#
+ipv6 route-static :: 0 FC77::1
+ipv6 route-static :: 0 FC99::1 preference 100
+#
+ip ipv6-prefix SKYNET-AS300-PUBLIC-V6 index 10 permit FC16:: 48
+ip ipv6-prefix V6 index 10 permit FC11::1 128
+ip ipv6-prefix V6 index 20 permit FC12::1 128
+ip ipv6-prefix V6 index 30 permit FC13::1 128
+ip ipv6-prefix V6 index 40 permit FC14::1 128
+ip ipv6-prefix V6 index 50 permit FC15::1 128
+#
+lldp enable
+#
+stelnet server enable
+ssh user eve
+ssh user eve authentication-type password
+ssh user eve service-type stelnet
+ssh authorization-type default aaa
+#
+ssh server cipher aes256_gcm aes128_gcm aes256_ctr aes192_ctr aes128_ctr aes256_cbc aes128_cbc 3des_cbc
+#
+ssh server dh-exchange min-len 1024
+#
+ssh client first-time enable
+#
+ssh client cipher aes256_gcm aes128_gcm aes256_ctr aes192_ctr aes128_ctr aes256_cbc aes128_cbc 3des_cbc
+#
+header shell information "
+            /\  
+           /  \ 
+          /_/\_\
+   SKYNET PROVIDER EQUIPMENT
+ UNAUTHORIZED ACCESS FORBIDDEN
+  ALL ACTIVITY IS MONITORED
+      NO HOPE REMAINS
+
+"
+header login information "
+            /\  
+           /  \ 
+          /_/\_\
+   SKYNET PROVIDER EQUIPMENT
+ UNAUTHORIZED ACCESS FORBIDDEN
+  ALL ACTIVITY IS MONITORED
+      NO HOPE REMAINS
+
+"
+#
+nqa test-instance SKYNET CE01L3VPNLINK
+ test-type icmp
+ destination-address ipv4 10.207.0.1
+ source-address ipv4 10.207.0.2
+ frequency 10
+ start now
+#
+user-interface con 0
+ idle-timeout 60 0
+#
+user-interface aux 0
+#
+user-interface vty 0 4
+ authentication-mode aaa
+ idle-timeout 60 0
+ protocol inbound ssh
+#
+local-aaa-server
+#
+vm-manager
+#
+return
+[~ISP-HE]commit
+[~ISP-HE]return
+<ISP-HE>save
+Warning: The current configuration will be written to the device.
+Are you sure to continue? [Y/N]:y
+Now saving the current configuration to the slot 17 .....
+Info: Save the configuration successfully.
+<ISP-HE>display lldp neighbor
+Ethernet1/0/0 has 0 neighbor(s)
+
+Ethernet1/0/1 has 1 neighbor(s):
+
+Neighbor index                     :1
+Chassis type                       :macAddress
+Chassis ID                         :aabb-cc00-9000
+Port ID type                       :interfaceName
+Port ID                            :Et0/1
+Port description                   :Ethernet0/1                   
+System name                        :CE01-L3VPN-01.evelab.com      
+System description                 :Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.4(2)T4, DEVELOPMENT TEST SOFTWARE
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2015 by Cisco Systems, Inc.
+Compiled Thu 08-Oct-15 21:21 by prod_rel_te
+System capabilities supported      :bridge router
+System capabilities enabled        :router
+Management address type            :ipv4
+Management address                 :10.207.0.1
+Expired time                       :99s
+
+Port VLAN ID(PVID)                 :--
+Port and Protocol VLAN ID(PPVID)   :--
+Port and Protocol VLAN supported   :--
+Port and Protocol VLAN enabled     :--
+VLAN name of VLAN                  :--
+Protocol identity                  :--
+Auto-negotiation supported         :--
+Auto-negotiation enabled           :--
+OperMau                            :speed (--) /duplex (--)
+Link aggregation supported         :--
+Link aggregation enabled           :--
+Aggregation port ID                :--
+Maximum frame Size                 :--
+Discovered time                    :2026-09-28 17:20:04-03:00
+
+Device discovery protocol TLV
+Serial number                      :--
+Interface index                    :--
+IPv4 address                       :--
+MAC address                        :--
+
+Ethernet1/0/2 has 1 neighbor(s):
+
+Neighbor index                     :1
+Chassis type                       :macAddress
+Chassis ID                         :5000-001b-0000
+Port ID type                       :interfaceName
+Port ID                            :Gi0/2
+Port description                   :To-ISP-HE                     
+System name                        :SKNT-PE01-BORDER.evelab.com   
+System description                 :Cisco IOS Software, IOSv Software (VIOS-ADVENTERPRISEK9-M), Version 15.6(2)T, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2016 by Cisco Systems, Inc.
+Compiled Tue 22-Mar-16 16:19 by prod_rel_team
+System capabilities supported      :bridge router
+System capabilities enabled        :router
+Management address type            :ipv4
+Management address                 :10.206.0.1
+Management address type            :ipv6
+Management address                 :fc99:0000:0000:0000:0000:0000:0000:0001
+Expired time                       :119s
+
+Port VLAN ID(PVID)                 :--
+Port and Protocol VLAN ID(PPVID)   :--
+Port and Protocol VLAN supported   :--
+Port and Protocol VLAN enabled     :--
+VLAN name of VLAN                  :--
+Protocol identity                  :--
+Auto-negotiation supported         :--
+Auto-negotiation enabled           :--
+OperMau                            :speed (--) /duplex (--)
+Link aggregation supported         :--
+Link aggregation enabled           :--
+Aggregation port ID                :--
+Maximum frame Size                 :--
+Discovered time                    :2026-09-28 17:20:26-03:00
+
+Device discovery protocol TLV
+Serial number                      :--
+Interface index                    :--
+IPv4 address                       :--
+MAC address                        :--
+
+Ethernet1/0/3 has 0 neighbor(s)
+
+Ethernet1/0/4 has 0 neighbor(s)
+
+Ethernet1/0/5 has 1 neighbor(s):
+
+Neighbor index                     :1
+Chassis type                       :macAddress
+Chassis ID                         :0005-8671-5fc0
+Port ID type                       :interfaceName
+Port ID                            :ge-0/0/5
+Port description                   :ge-0/0/5                      
+System name                        :SKNT-PE04-vMX01               
+System description                 :Juniper Networks, Inc. vmx , version 14.1R1.10 Build date: 2014-06-07 10:50:35 UTC 
+System capabilities supported      :bridge router
+System capabilities enabled        :bridge router
+Management address type            :ipv4
+Management address                 :192.168.1.3
+Expired time                       :98s
+
+Port VLAN ID(PVID)                 :--
+Port and Protocol VLAN ID(PPVID)   :--
+Port and Protocol VLAN supported   :--
+Port and Protocol VLAN enabled     :--
+VLAN name of VLAN                  :--
+Protocol identity                  :--
+Auto-negotiation supported         :Yes
+Auto-negotiation enabled           :Yes
+OperMau                            :speed (0-other) /duplex (--)
+Link aggregation supported         :Yes
+Link aggregation enabled           :No
+Aggregation port ID                :0
+Maximum frame Size                 :1514
+Discovered time                    :2026-09-28 17:29:08-03:00
+
+Device discovery protocol TLV
+Serial number                      :--
+Interface index                    :--
+IPv4 address                       :--
+MAC address                        :--
+
+Ethernet1/0/6 has 0 neighbor(s)
+
+Ethernet1/0/7 has 0 neighbor(s)
+
+Ethernet1/0/8 has 0 neighbor(s)
+
+Ethernet1/0/9 has 0 neighbor(s)
+
+GigabitEthernet0/0/0 has 0 neighbor(s)
+
+<ISP-HE>display lldp neighbor brief
+Local Intf              Neighbor Dev         Neighbor Intf        Exptime (sec)
+-------------------------------------------------------------------------------
+Ethernet1/0/1           CE01-L3VPN-01.evelab.com Et0/1                           98
+Ethernet1/0/2           SKNT-PE01-BORDER.evelab.com Gi0/2                          118
+Ethernet1/0/5           SKNT-PE04-vMX01      ge-0/0/5                        97
+<ISP-HE>undo screen-length temporary
+<ISP-HE>system-view
+Enter system view, return user view with return command.
