@@ -1,0 +1,7 @@
+Antes de começar a configurar o laboratório, observe que todos os dispositivos já estão configurados e o laboratório está pronto e em execução:
+
+1 - Inicie a VM do EVE-NG.
+2 - Não dê "Start" em nenhum dispositivo, deixe todos desligados.
+3 - No painel à direita, vá em "More Actions" e selecione "Wipe All Nodes".
+4 - Isso limpará todas as configurações em todos os dispositivos, permitindo que você os configure do zero.
+5 - Utilize o arquivo Skynet-ISP-LAB-Complete-Ready-to-Paste-Configurations-V2.0.pdf, que contém todos os scripts para todos os nós.
