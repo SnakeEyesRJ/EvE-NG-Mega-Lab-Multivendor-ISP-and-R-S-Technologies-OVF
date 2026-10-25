@@ -2,8 +2,6 @@
 
 ![Profile Banner](./PROFILE%20COVER.png)
 
-# SecureCRT Keyword Highlight — Multivendor
-
 A hands-on EVE-NG lab project focused on service provider networking, routing, switching, and multivendor network infrastructure technologies.
 
 **Author:** [Emildo Lahud](https://github.com/SnakeEyesRJ)  
