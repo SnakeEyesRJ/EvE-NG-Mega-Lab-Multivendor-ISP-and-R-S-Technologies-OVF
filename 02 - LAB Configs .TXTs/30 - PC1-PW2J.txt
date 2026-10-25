@@ -1,0 +1,261 @@
+﻿PC1-PW2-JUNOS#end 
+Translating "end"
+
+Translating "end"
+
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+PC1-PW2-JUNOS#terminal length 0 
+PC1-PW2-JUNOS#show running-config 
+Building configuration...
+
+Current configuration : 4878 bytes
+!
+! Last configuration change at 17:18:58 -03 Mon Sep 28 2026 by eve
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname PC1-PW2-JUNOS
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$n6Ex$Y4lwbLs3h9z0HEVWVXIC.1
+!
+no aaa new-model
+clock timezone -03 -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username eve privilege 15 secret 5 $1$JBx7$V042tFnmFn0wrEnvS6JY1/
+!
+redundancy
+!
+lldp run
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description PW-PC-01 Source Address
+ ip address 192.168.167.1 255.255.255.255
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback1
+ description DC1-PW2-SRVR-01
+ ip address 192.168.171.1 255.255.255.255
+ ipv6 address FD00:2026:7:10::101/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback2
+ description DC1-PW2-SRVR-02
+ ip address 192.168.171.2 255.255.255.255
+ ipv6 address FD00:2026:7:10::102/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback3
+ description DC1-PW2-SRVR-03
+ ip address 192.168.171.3 255.255.255.255
+ ipv6 address FD00:2026:7:10::103/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback4
+ description DC1-PW2-SRVR-04
+ ip address 192.168.171.4 255.255.255.255
+ ipv6 address FD00:2026:7:10::104/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Loopback5
+ description DC1-PW2-SRVR-05
+ ip address 192.168.171.5 255.255.255.255
+ ipv6 address FD00:2026:7:10::105/128
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Ethernet0/0
+ description To-SKNT-PE04-vMX01-PW
+ ip address 192.168.169.1 255.255.255.0
+ ipv6 address FD00:2026:7:10:1::1/127
+ ipv6 enable
+ ipv6 ospf 1 area 0
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 192.168.167.1
+ network 192.168.169.0 0.0.0.255 area 0
+ network 192.168.171.1 0.0.0.0 area 0
+ network 192.168.171.2 0.0.0.0 area 0
+ network 192.168.171.3 0.0.0.0 area 0
+ network 192.168.171.4 0.0.0.0 area 0
+ network 192.168.171.5 0.0.0.0 area 0
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 192.168.167.1
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+banner login ^C
+
+
+                    <<< PC1-PW2-JunOS >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+
+                    <<< PC1-PW2-JunOS >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+!
+end
+
+PC1-PW2-JUNOS#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+PC1-PW2-JUNOS(config)#line vty 0 4 
+PC1-PW2-JUNOS(config-line)#length 24 
+PC1-PW2-JUNOS(config-line)#line console 0 
+PC1-PW2-JUNOS(config-line)#length 24 
+PC1-PW2-JUNOS(config-line)#end 
+PC1-PW2-JUNOS#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE05-vMX02     Et0/0          120        B,R             ge-0/0/7
+
+Total entries displayed: 1
+
+PC1-PW2-JUNOS#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 192.168.1.5
+PC1-PW2-JUNOS#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+[OK]
+PC1-PW2-JUNOS#
+*Sep 28 22:30:39.768: %SYS-5-CONFIG_I: Configured from console by eve on console
