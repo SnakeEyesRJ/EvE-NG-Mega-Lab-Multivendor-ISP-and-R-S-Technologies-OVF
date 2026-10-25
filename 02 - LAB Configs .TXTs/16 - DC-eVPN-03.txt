@@ -1,0 +1,265 @@
+﻿DC-eVPN-03#end 
+Translating "end"
+
+Translating "end"
+% Unknown command or computer name, or unable to find computer address
+DC-eVPN-03#terminal length 0 
+DC-eVPN-03#show running-config 
+Building configuration...
+
+  
+Current configuration : 5599 bytes
+!
+! Last configuration change at 19:27:54 UTC Mon Sep 28 2026 by eve
+! NVRAM config last updated at 19:27:54 UTC Mon Sep 28 2026 by eve
+!
+version 15.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service compress-config
+!
+hostname DC-eVPN-03
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$m49K$pysYsP6939EBCvSNEKS6B1
+!
+username eve privilege 15 secret 5 $1$ynjn$xFPW6/qJtcT3gt4xj52Hv.
+no aaa new-model
+clock timezone UTC -3 0
+!
+!
+!
+!
+!
+no ip source-route
+!
+!
+!
+no ip bootp server
+no ip domain-lookup
+ip domain-name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.100.1
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+lldp run
+no cdp run
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description DC-03-SERVER-01
+ ip address 172.31.35.3 255.255.255.255
+ ipv6 address 2001:DB8:35:1::3/128
+ ipv6 enable
+!
+interface Loopback1
+ description DC-eVPN-03-SERVER-01
+ ip address 172.31.35.15 255.255.255.255
+ ipv6 address 2001:DB8:35:1::15/128
+ ipv6 enable
+!
+interface Loopback2
+ description DC-eVPN-03-SERVER-02
+ ip address 172.31.35.16 255.255.255.255
+ ipv6 address 2001:DB8:35:1::16/128
+ ipv6 enable
+!
+interface Loopback3
+ description DC-eVPN-03-SERVER-03
+ ip address 172.31.35.17 255.255.255.255
+ ipv6 address 2001:DB8:35:1::17/128
+ ipv6 enable
+!
+interface Loopback4
+ description DC-eVPN-03-SERVER-04
+ ip address 172.31.35.18 255.255.255.255
+ ipv6 address 2001:DB8:35:1::18/128
+ ipv6 enable
+!
+interface Loopback5
+ description DC-eVPN-03-SERVER-05
+ ip address 172.31.35.19 255.255.255.255
+ ipv6 address 2001:DB8:35:1::19/128
+ ipv6 enable
+!
+interface Ethernet0/0
+ description To-SKNT-PE03-vMX03
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/1
+ description NOT-USED
+ shutdown
+!
+interface Ethernet0/2
+ description NOT-USED
+ shutdown
+!
+interface Ethernet0/3
+ description NOT-USED
+ shutdown
+!
+interface Vlan600
+ description To-SKNT-PE03-vMX03
+ ip address 10.35.0.3 255.255.255.0
+ ipv6 address 2001:DB8:35:600::3/64
+ ipv6 enable
+!
+!
+router eigrp 300
+ default-metric 10000 1000 255 1 1500
+ network 10.35.0.0 0.0.0.255
+ network 172.31.35.0 0.0.0.255
+ network 172.31.35.3 0.0.0.0
+ redistribute ospf 1
+ eigrp router-id 10.35.0.3
+!
+!
+router eigrp SKYNET
+ !
+ address-family ipv6 unicast autonomous-system 300
+  !
+  topology base
+   redistribute ospf 1 metric 10000 100 255 1 1500
+  exit-af-topology
+  eigrp router-id 10.35.0.3
+ exit-address-family
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh version 2
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+!
+ipv6 route ::/0 2001:DB8:35:600::254
+!
+!
+!
+control-plane
+!
+banner login ^C
+
+                     <<< DC-eVPN-03 >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                     <<< DC-eVPN-03 >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+ntp authentication-key 1 md5 112C0F001B13092C567A7971 7
+ntp authenticate
+ntp trusted-key 1
+ntp source Loopback0
+ntp update-calendar
+ntp server 172.31.35.1 prefer source Loopback0
+!
+end
+
+DC-eVPN-03#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+DC-eVPN-03(config)#line vty 0 4 
+DC-eVPN-03(config-line)#length 24 
+DC-eVPN-03(config-line)#line console 0 
+DC-eVPN-03(config-line)#length 24 
+DC-eVPN-03(config-line)#end 
+DC-eVPN-03#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE03-vMX03     Et0/0          120        B,R             ge-0/0/0
+
+Total entries displayed: 1
+
+DC-eVPN-03#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 192.168.1.251
+DC-eVPN-03#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+
+  Compressed configuration from 5599 bytes to 2629 bytes[OK]
+DC-eVPN-03#
+Sep 28 22:56:05.543 UTC: %SYS-5-CONFIG_I: Configured from console by eve on console
