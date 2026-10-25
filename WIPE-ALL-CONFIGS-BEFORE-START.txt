@@ -1,0 +1,7 @@
+Before starting configuring the lab, notice that all devices are already configured and the lab is ready and running:
+
+1 - Start the EVE-VM
+2 - Don't start any node, leave them all stopped.
+3 - On the right Pannel go to "More Actions" and select "Wipe All Nodes"
+4 - This will zeroize all nodes for you configure them from scratch
+5 - Use the Skynet-ISP-LAB-Complete-Ready-to-Paste-Configurations-V2.0.pdf which contains all scripts for all nodes.
