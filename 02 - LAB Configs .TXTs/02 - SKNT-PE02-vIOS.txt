@@ -1,0 +1,1071 @@
+﻿SKNT-PE02-vIOS#end 
+Translating "end"
+
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+SKNT-PE02-vIOS#terminal length 0 
+SKNT-PE02-vIOS#show running-config 
+Building configuration...
+
+Current configuration : 33129 bytes
+!
+! Last configuration change at 19:11:44 BRT Mon Sep 28 2026 by eve
+! NVRAM config last updated at 19:11:44 BRT Mon Sep 28 2026 by eve
+!
+version 15.6
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+!
+hostname SKNT-PE02-vIOS
+!
+boot-start-marker
+boot-end-marker
+!
+!
+vrf definition INTER-AS-L3VPN
+ rd 300:100
+ !
+ address-family ipv4
+  route-target export 300:100
+  route-target import 300:100
+ exit-address-family
+ !
+ address-family ipv6
+  route-target export 300:100
+  route-target import 300:100
+ exit-address-family
+!
+logging discriminator NOTRACE msg-body drops -Traceback=
+logging buffered discriminator NOTRACE
+enable secret 5 $1$OViT$GonXFGdRKgdCfdNfemWPU/
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+clock timezone BRT -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip source-route
+!
+!
+!
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name evelab.com
+ip name-server 192.168.100.1
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip cef
+login on-failure log
+login on-success log
+ipv6 unicast-routing
+ipv6 cef
+no ipv6 dhcp server join all-dhcp-servers
+!
+multilink bundle-name authenticated
+mpls label range 2000 2999
+mpls label protocol ldp
+mpls ldp neighbor 192.168.1.3 targeted ldp
+mpls ldp neighbor 192.168.1.5 targeted ldp
+mpls ldp neighbor 192.168.1.100 targeted ldp
+mpls ldp neighbor 192.168.1.200 targeted ldp
+mpls ldp neighbor 192.168.1.4 targeted ldp
+mpls ldp neighbor 192.168.1.2 targeted ldp
+mpls ldp neighbor 192.168.1.1 targeted ldp
+mpls ldp neighbor 192.168.1.251 targeted ldp
+mpls ldp neighbor 192.168.1.101 targeted ldp
+mpls ldp neighbor 192.168.1.250 targeted ldp
+mpls ldp graceful-restart
+mpls ldp session protection
+mpls ldp igp sync holddown 1
+mpls ldp discovery targeted-hello accept
+mpls traffic-eng tunnels
+no mpls ip propagate-ttl forwarded
+!
+!
+!
+!
+username eve privilege 15 secret 5 $1$9woI$JZLxo22JOULcirt3JiN351
+!
+redundancy
+!
+lldp run
+no cdp run
+!
+track 202 ip sla 202 reachability
+ delay down 10 up 10
+!
+track 204 ip sla 204 reachability
+ delay down 10 up 10
+!
+!
+class-map match-all CM-COPP-CRITICAL
+ match access-group name COPP-CRITICAL
+class-map match-any CM-TRANSIT-CONTROL
+ match access-group name QOS-TRANSIT-CONTROL
+class-map match-all CM-COPP-MONITORING
+ match access-group name COPP-MONITORING
+class-map match-all CM-COPP-MANAGEMENT
+ match access-group name COPP-MANAGEMENT
+class-map match-any CM-CUST-CRITICAL
+ match dscp af31 
+class-map match-any CM-TRANSIT-SCAVENGER
+ match dscp cs1 
+class-map match-any CM-TRANSIT-VOICE
+ match dscp ef 
+class-map match-any CM-CRITICAL
+ match dscp af31 
+class-map match-any CM-TRANSIT-CRITICAL
+ match dscp af31 
+class-map match-any CM-CUST-SCAVENGER
+ match dscp cs1 
+class-map match-any CM-CUST-VOICE
+ match dscp ef 
+class-map match-any CM-CONTROL
+ match access-group name QOS-CONTROL-TRAFFIC
+class-map match-any CM-VOICE
+ match dscp ef 
+class-map match-any CM-SCAVENGER
+ match dscp cs1 
+!
+policy-map PM-QOS-CHILD-PE02-GI0-0
+ class CM-CONTROL
+  priority percent 10
+ class CM-VOICE
+  priority percent 15
+ class CM-CRITICAL
+  bandwidth percent 20 
+ class CM-SCAVENGER
+  police 1000000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-PE02-GI0-0
+ class class-default
+  shape average 20000000   
+   service-policy PM-QOS-CHILD-PE02-GI0-0
+policy-map PM-QOS-CHILD-PE02-GI0-4
+ class CM-CONTROL
+  priority percent 10
+ class CM-VOICE
+  priority percent 15
+ class CM-CRITICAL
+  bandwidth percent 20 
+ class CM-SCAVENGER
+  police 1000000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-PE02-GI0-4
+ class class-default
+  shape average 20000000   
+   service-policy PM-QOS-CHILD-PE02-GI0-4
+policy-map PM-QOS-CHILD-TRANSIT
+ class CM-TRANSIT-CONTROL
+  priority percent 5
+ class CM-TRANSIT-VOICE
+  priority percent 10
+ class CM-TRANSIT-CRITICAL
+  bandwidth percent 15 
+ class CM-TRANSIT-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-CHILD-CUSTOMER
+ class CM-CUST-VOICE
+  priority percent 20
+ class CM-CUST-CRITICAL
+  bandwidth percent 30 
+ class CM-CUST-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PARENT-CUSTOMER-50M
+ class class-default
+  shape average 50000000   
+   service-policy PM-QOS-CHILD-CUSTOMER
+policy-map PM-COPP
+ class CM-COPP-CRITICAL
+  police 1000000 187500 187500 conform-action transmit  exceed-action drop 
+ class CM-COPP-MANAGEMENT
+  police 512000 96000 96000 conform-action transmit  exceed-action drop 
+ class CM-COPP-MONITORING
+  police 256000 48000 48000 conform-action transmit  exceed-action drop 
+ class class-default
+  police 64000 12000 12000 conform-action transmit  exceed-action drop 
+policy-map PM-QOS-PARENT-TRANSIT
+ class class-default
+  shape average 20000000   
+   service-policy PM-QOS-CHILD-TRANSIT
+!
+! 
+!
+crypto ikev2 proposal DMVPN-IKEV2-PROP 
+ encryption aes-gcm-256
+ prf sha256
+ group 19
+!
+crypto ikev2 policy DMVPN-IKEV2-POLICY 
+ proposal DMVPN-IKEV2-PROP
+!
+crypto ikev2 keyring DMVPN-IKEV2-KEYRING
+ peer HUB-P01
+  address 172.16.0.3
+  pre-shared-key Evelab@2025
+ !
+ peer PE06
+  address 172.16.0.100
+  pre-shared-key Evelab@2025
+ !
+ peer PE07
+  address 172.16.0.200
+  pre-shared-key Evelab@2025
+ !
+ peer PE01-BORDER
+  address 172.16.0.254
+  pre-shared-key Evelab@2025
+ !
+!
+!
+crypto ikev2 profile DMVPN-IKEV2-PROFILE
+ match identity remote address 172.16.0.3 255.255.255.255 
+ match identity remote address 172.16.0.100 255.255.255.255 
+ match identity remote address 172.16.0.200 255.255.255.255 
+ match identity remote address 172.16.0.254 255.255.255.255 
+ identity local address 172.16.0.250
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local DMVPN-IKEV2-KEYRING
+ dpd 10 3 periodic
+!
+crypto ikev2 fragmentation
+!
+!
+crypto ipsec transform-set DMVPN-TS esp-gcm 256 
+ mode transport
+!
+crypto ipsec profile DMVPN-IPSEC-PROFILE
+ set transform-set DMVPN-TS 
+ set pfs group19
+ set ikev2-profile DMVPN-IKEV2-PROFILE
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Internal-Transit
+ ip address 192.168.1.250 255.255.255.255
+ ipv6 address FC65::1/128
+ ipv6 enable
+ ospfv3 1 ipv6 area 0
+!
+interface Loopback1
+ description Provider-Lan
+ ip address 172.16.0.250 255.255.255.255
+!
+interface Loopback10
+ description CE02-L3VPN-DC01
+ vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.99.1 255.255.255.255
+ ipv6 address 2001:DB8:99::1/128
+!
+interface Loopback20
+ description CE02-L3VPN-DC02
+ vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.99.2 255.255.255.255
+ ipv6 address 2001:DB8:99::2/128
+!
+interface Loopback30
+ description CE02-L3VPN-DC03
+ vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.99.3 255.255.255.255
+ ipv6 address 2001:DB8:99::3/128
+!
+interface Loopback40
+ description CE02-L3VPN-DC04
+ vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.99.4 255.255.255.255
+ ipv6 address 2001:DB8:99::4/128
+!
+interface Loopback50
+ description CE02-L3VPN-DC05
+ vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.99.5 255.255.255.255
+ ipv6 address 2001:DB8:99::5/128
+!
+interface Loopback300
+ description DMVPN-ENDPOINT-PE02
+ ip address 10.254.251.1 255.255.255.255
+!
+interface Tunnel10
+ description DMVPN-SPOKE-TO-P01
+ ip address 10.15.150.9 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map 10.15.150.1 172.16.0.3
+ ip nhrp map multicast 172.16.0.3
+ ip nhrp network-id 10
+ ip nhrp nhs 10.15.150.1
+ ip nhrp shortcut
+ ip tcp adjust-mss 1360
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+ tunnel key 10
+ tunnel protection ipsec profile DMVPN-IPSEC-PROFILE
+!
+interface Tunnel20
+ description IPv6-DMVPN-SPOKE-TO-P01
+ no ip address
+ no ip redirects
+ ipv6 address 2001:DB8:150::9/64
+ ipv6 mtu 1400
+ ipv6 nhrp map 2001:DB8:150::1/128 192.168.1.2
+ ipv6 nhrp map multicast 192.168.1.2
+ ipv6 nhrp network-id 10
+ ipv6 nhrp holdtime 300
+ ipv6 nhrp nhs 2001:DB8:150::1
+ ipv6 nhrp registration timeout 60
+ ipv6 nhrp shortcut
+ ipv6 ospf 1 area 0
+ ipv6 ospf network broadcast
+ ipv6 ospf dead-interval 40
+ ipv6 ospf priority 0
+ tunnel source Loopback0
+ tunnel mode gre multipoint
+ tunnel key 10
+!
+interface GigabitEthernet0/0
+ description To-SKNT-P01-ISP
+ ip address 10.0.0.22 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FC03::1/127
+ ipv6 enable
+ mpls traffic-eng tunnels
+ mpls label protocol ldp
+ mpls ip
+ ospfv3 1 ipv6 area 0
+ ospfv3 1 ipv6 network point-to-point
+ service-policy output PM-QOS-PARENT-PE02-GI0-0
+ ip rsvp bandwidth 50000
+!
+interface GigabitEthernet0/1
+ description To-ISP-TATA
+ ip address 10.202.0.1 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FC23::1/127
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface GigabitEthernet0/2
+ description To-ISP-TATA
+ ip address 10.204.0.1 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FC68::1/127
+ service-policy output PM-QOS-PARENT-TRANSIT
+!
+interface GigabitEthernet0/3
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/4
+ description To-SKNT-PE03-vMX03
+ ip address 10.10.11.1 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FC79::1/127
+ ipv6 enable
+ mpls traffic-eng tunnels
+ mpls label protocol ldp
+ mpls ip
+ ospfv3 1 ipv6 area 0
+ service-policy output PM-QOS-PARENT-PE02-GI0-4
+ ip rsvp bandwidth 50000
+!
+interface GigabitEthernet0/5
+ description To-CE02-L3VPN-01
+ vrf forwarding INTER-AS-L3VPN
+ ip address 192.168.222.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ service-policy output PM-QOS-PARENT-CUSTOMER-50M
+!
+interface GigabitEthernet0/6
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/7
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router ospfv3 1
+ router-id 192.168.1.250
+ !
+ address-family ipv6 unicast
+  auto-cost reference-bandwidth 10000
+ exit-address-family
+!
+router ospf 1
+ mpls ldp sync
+ mpls traffic-eng router-id Loopback0
+ mpls traffic-eng area 0
+ router-id 192.168.1.250
+ auto-cost reference-bandwidth 10000
+ network 10.0.0.20 0.0.0.3 area 0
+ network 10.10.11.0 0.0.0.3 area 0
+ network 192.168.1.250 0.0.0.0 area 0
+ network 192.168.177.0 0.0.0.3 area 0
+!
+router bgp 300
+ bgp router-id 192.168.1.250
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ neighbor 10.202.0.2 remote-as 500
+ neighbor 10.202.0.2 description To-ISP-TATA
+ neighbor 10.202.0.2 ttl-security hops 1
+ neighbor 10.202.0.2 password 7 15371D09082B29047A636777
+ neighbor 10.204.0.2 remote-as 500
+ neighbor 10.204.0.2 description To-ISP-TATA
+ neighbor 10.204.0.2 ttl-security hops 1
+ neighbor 10.204.0.2 password 7 052E100A2D4D4C294B554547
+ neighbor 192.168.1.1 remote-as 300
+ neighbor 192.168.1.1 description To-SKNT-PE01-BORDER
+ neighbor 192.168.1.1 update-source Loopback0
+ neighbor 192.168.1.2 remote-as 300
+ neighbor 192.168.1.2 description To-SKNT-P01-ISP
+ neighbor 192.168.1.2 update-source Loopback0
+ neighbor 192.168.1.251 remote-as 300
+ neighbor 192.168.1.251 description To-SKNT-PE03-vMX03
+ neighbor 192.168.1.251 update-source Loopback0
+ neighbor 192.168.222.2 remote-as 301
+ neighbor 192.168.222.2 description CE-02
+ neighbor FC03:: remote-as 300
+ neighbor FC03:: description To-SKNT-P01-ISP
+ neighbor FC23:: remote-as 500
+ neighbor FC23:: description To-ISP-TATA
+ neighbor FC23:: ttl-security hops 1
+ neighbor FC23:: password 7 08045A4B05180737405B5E51
+ neighbor FC68:: remote-as 500
+ neighbor FC68:: description To-ISP-TATA
+ neighbor FC68:: ttl-security hops 1
+ neighbor FC68:: password 7 00210503085A09265D711E1B
+ neighbor FC79:: remote-as 300
+ neighbor FC79:: description To-SKNT-PE03-vMX03-V6
+ !
+ address-family ipv4
+  table-map RM-BGP-COMMUNITY-TO-RIB-TAG
+  bgp additional-paths send
+  network 10.202.0.0 mask 255.255.255.252
+  network 10.204.0.0 mask 255.255.255.252
+  network 172.16.0.0 mask 255.255.255.0
+  network 172.16.0.250 mask 255.255.255.255
+  redistribute connected
+  redistribute static route-map RM-REDIST-STATIC-TATA-17219
+  neighbor 10.202.0.2 activate
+  neighbor 10.202.0.2 send-community both
+  neighbor 10.202.0.2 soft-reconfiguration inbound
+  neighbor 10.202.0.2 route-map RM-IN-FROM-TATA-AS500-V4 in
+  neighbor 10.202.0.2 route-map RM-OUT-TO-TATA-AS500 out
+  neighbor 10.202.0.2 maximum-prefix 10 warning-only
+  neighbor 10.204.0.2 activate
+  neighbor 10.204.0.2 send-community both
+  neighbor 10.204.0.2 soft-reconfiguration inbound
+  neighbor 10.204.0.2 route-map RM-IN-FROM-TATA-AS500-V4 in
+  neighbor 10.204.0.2 route-map RM-OUT-TO-TATA-AS500 out
+  neighbor 10.204.0.2 maximum-prefix 10 warning-only
+  neighbor 192.168.1.1 activate
+  neighbor 192.168.1.1 send-community both
+  neighbor 192.168.1.1 next-hop-self
+  neighbor 192.168.1.2 activate
+  neighbor 192.168.1.2 send-community both
+  neighbor 192.168.1.2 next-hop-self
+  neighbor 192.168.1.2 soft-reconfiguration inbound
+  neighbor 192.168.1.251 activate
+  neighbor 192.168.1.251 send-community both
+  neighbor 192.168.1.251 next-hop-self
+  neighbor 192.168.1.251 soft-reconfiguration inbound
+  neighbor 192.168.222.2 activate
+  no neighbor FC03:: activate
+  no neighbor FC23:: activate
+  no neighbor FC68:: activate
+  no neighbor FC79:: activate
+  maximum-paths ibgp 32
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 192.168.1.1 activate
+  neighbor 192.168.1.1 send-community both
+  neighbor 192.168.1.1 next-hop-self
+  neighbor 192.168.1.2 activate
+  neighbor 192.168.1.2 send-community both
+  neighbor 192.168.1.2 next-hop-self
+  neighbor 192.168.1.251 activate
+  neighbor 192.168.1.251 send-community both
+  neighbor 192.168.1.251 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6
+  maximum-paths ibgp 32
+  bgp additional-paths send
+  network FC23::/127
+  network FC68::/127
+  network FC79::/127
+  neighbor FC03:: activate
+  neighbor FC03:: send-community both
+  neighbor FC03:: soft-reconfiguration inbound
+  neighbor FC23:: activate
+  neighbor FC23:: send-community both
+  neighbor FC23:: soft-reconfiguration inbound
+  neighbor FC23:: route-map RM-IN-FROM-TATA-AS500-V6 in
+  neighbor FC23:: route-map RM-OUT-TO-TATA-AS500-V6 out
+  neighbor FC23:: maximum-prefix 10 warning-only
+  neighbor FC68:: activate
+  neighbor FC68:: send-community both
+  neighbor FC68:: soft-reconfiguration inbound
+  neighbor FC68:: route-map RM-IN-FROM-TATA-AS500-V6 in
+  neighbor FC68:: route-map RM-OUT-TO-TATA-AS500-V6 out
+  neighbor FC68:: maximum-prefix 10 warning-only
+  neighbor FC79:: activate
+  neighbor FC79:: send-community both
+  neighbor FC79:: soft-reconfiguration inbound
+ exit-address-family
+ !
+ address-family vpnv6
+  neighbor 192.168.1.1 activate
+  neighbor 192.168.1.1 send-community both
+  neighbor 192.168.1.2 activate
+  neighbor 192.168.1.2 send-community both
+ exit-address-family
+ !
+ address-family ipv4 vrf INTER-AS-L3VPN
+  redistribute connected
+  redistribute static route-map RM-REDIST-STATIC-TATA-17219
+  neighbor 192.168.222.2 remote-as 301
+  neighbor 192.168.222.2 description CE-02
+  neighbor 192.168.222.2 password 7 15371D09082B29047A636777
+  neighbor 192.168.222.2 activate
+ exit-address-family
+ !
+ address-family ipv6 vrf INTER-AS-L3VPN
+  redistribute connected
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+ip community-list standard COMM-FROM-VERIZON-AS200 permit 300:200
+ip community-list standard COMM-FROM-HE-AS400 permit 300:400
+ip community-list standard COMM-FROM-TATA-AS500 permit 300:500
+ip community-list standard COMM-FROM-SKYNET-AS300 permit 300:300
+ip community-list standard SKNT-ORIGIN-CE01 permit 300:101
+ip community-list standard SKNT-ORIGIN-CE02 permit 300:102
+ip community-list standard SKNT-ORIGIN-VERIZON permit 300:200
+ip community-list standard SKNT-ORIGIN-SKYNET permit 300:300
+ip community-list standard SKNT-ORIGIN-HE permit 300:400
+ip community-list standard SKNT-ORIGIN-TATA permit 300:500
+ip community-list standard SKNT-LP-HIGH permit 300:250
+ip community-list standard SKNT-LP-NORMAL permit 300:150
+ip community-list standard SKNT-LP-BACKUP permit 300:90
+ip community-list standard SKNT-LP-LAST-RESORT permit 300:50
+ip community-list standard SKNT-NO-EXPORT-HE permit 300:701
+ip community-list standard SKNT-NO-EXPORT-TATA permit 300:702
+ip community-list standard SKNT-NO-EXPORT-VERIZON permit 300:703
+ip community-list standard SKNT-INTERNAL-ONLY permit 300:778
+ip community-list standard SKNT-RTBH permit 300:666
+!
+ip ftp username eve
+ip ftp password 7 1432040E0005280B76786160
+no ip http server
+no ip http secure-server
+ip nat inside source route-map RM-NAT-L3VPN-TATA-G01 interface GigabitEthernet0/1 vrf INTER-AS-L3VPN overload
+ip nat inside source route-map RM-NAT-L3VPN-TATA-G02 interface GigabitEthernet0/2 vrf INTER-AS-L3VPN overload
+ip route vrf INTER-AS-L3VPN 172.19.10.1 255.255.255.255 10.202.0.2 global tag 500 name TATA-PRIMARY-17219-10 track 202
+ip route vrf INTER-AS-L3VPN 172.19.20.1 255.255.255.255 10.202.0.2 global tag 500 name TATA-PRIMARY-17219-20 track 202
+ip route vrf INTER-AS-L3VPN 172.19.30.1 255.255.255.255 10.202.0.2 global tag 500 name TATA-PRIMARY-17219-30 track 202
+ip route vrf INTER-AS-L3VPN 172.19.40.1 255.255.255.255 10.202.0.2 global tag 500 name TATA-PRIMARY-17219-40 track 202
+ip route vrf INTER-AS-L3VPN 172.19.50.1 255.255.255.255 10.202.0.2 global tag 500 name TATA-PRIMARY-17219-50 track 202
+ip route vrf INTER-AS-L3VPN 172.19.10.1 255.255.255.255 10.204.0.2 global 50 tag 500 name TATA-BACKUP-17219-10 track 204
+ip route vrf INTER-AS-L3VPN 172.19.20.1 255.255.255.255 10.204.0.2 global 50 tag 500 name TATA-BACKUP-17219-20 track 204
+ip route vrf INTER-AS-L3VPN 172.19.30.1 255.255.255.255 10.204.0.2 global 50 tag 500 name TATA-BACKUP-17219-30 track 204
+ip route vrf INTER-AS-L3VPN 172.19.40.1 255.255.255.255 10.204.0.2 global 50 tag 500 name TATA-BACKUP-17219-40 track 204
+ip route vrf INTER-AS-L3VPN 172.19.50.1 255.255.255.255 10.204.0.2 global 50 tag 500 name TATA-BACKUP-17219-50 track 204
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh source-interface Loopback1
+ip ssh version 2
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+ip access-list extended ACL-NAT-L3VPN-TATA
+ permit ip 192.168.245.0 0.0.0.3 host 172.19.10.1
+ permit ip 192.168.245.0 0.0.0.3 host 172.19.20.1
+ permit ip 192.168.245.0 0.0.0.3 host 172.19.30.1
+ permit ip 192.168.245.0 0.0.0.3 host 172.19.40.1
+ permit ip 192.168.245.0 0.0.0.3 host 172.19.50.1
+ permit ip 192.168.246.0 0.0.0.3 host 172.19.10.1
+ permit ip 192.168.246.0 0.0.0.3 host 172.19.20.1
+ permit ip 192.168.246.0 0.0.0.3 host 172.19.30.1
+ permit ip 192.168.246.0 0.0.0.3 host 172.19.40.1
+ permit ip 192.168.246.0 0.0.0.3 host 172.19.50.1
+ permit ip 192.168.111.0 0.0.0.255 host 172.19.10.1
+ permit ip 192.168.111.0 0.0.0.255 host 172.19.20.1
+ permit ip 192.168.111.0 0.0.0.255 host 172.19.30.1
+ permit ip 192.168.111.0 0.0.0.255 host 172.19.40.1
+ permit ip 192.168.111.0 0.0.0.255 host 172.19.50.1
+ permit ip 192.168.222.0 0.0.0.255 host 172.19.10.1
+ permit ip 192.168.222.0 0.0.0.255 host 172.19.20.1
+ permit ip 192.168.222.0 0.0.0.255 host 172.19.30.1
+ permit ip 192.168.222.0 0.0.0.255 host 172.19.40.1
+ permit ip 192.168.222.0 0.0.0.255 host 172.19.50.1
+ permit ip 192.168.245.0 0.0.0.3 any
+ permit ip 192.168.246.0 0.0.0.3 any
+ permit ip 192.168.111.0 0.0.0.255 any
+ permit ip 192.168.222.0 0.0.0.255 any
+ permit ip 192.168.98.0 0.0.0.255 any
+ permit ip 192.168.99.0 0.0.0.255 any
+ip access-list extended COPP-CRITICAL
+ remark OSPF, BGP, LDP
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ip access-list extended COPP-MANAGEMENT
+ remark SSH from Provider-LAN only
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ip access-list extended COPP-MONITORING
+ remark ICMP diagnostics + NTP
+ permit icmp any any echo
+ permit icmp any any echo-reply
+ permit icmp any any ttl-exceeded
+ permit icmp any any unreachable
+ permit udp any any eq ntp
+ip access-list extended QOS-CONTROL-TRAFFIC
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ permit udp any any eq 1698
+ permit udp any eq 1698 any
+ permit udp any any eq 1699
+ permit udp any eq 1699 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ remark SKYNET-QOS-CONTROL-PLANE-AND-ROUTING
+ permit 46 any any
+ip access-list extended QOS-TRANSIT-CONTROL
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ip access-list extended SSH-ALLOWED
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ deny   ip any any
+!
+!
+ip prefix-list CE02-OUT seq 5 permit 0.0.0.0/0
+ip prefix-list CE02-OUT seq 10 permit 172.19.10.1/32
+ip prefix-list CE02-OUT seq 15 permit 172.19.20.1/32
+ip prefix-list CE02-OUT seq 20 permit 172.19.30.1/32
+ip prefix-list CE02-OUT seq 25 permit 172.19.40.1/32
+ip prefix-list CE02-OUT seq 30 permit 172.19.50.1/32
+ip prefix-list CE02-OUT seq 35 permit 192.168.98.1/32
+ip prefix-list CE02-OUT seq 40 permit 192.168.98.2/32
+ip prefix-list CE02-OUT seq 45 permit 192.168.98.3/32
+ip prefix-list CE02-OUT seq 50 permit 192.168.98.4/32
+ip prefix-list CE02-OUT seq 55 permit 192.168.98.5/32
+ip prefix-list CE02-OUT seq 60 permit 192.168.99.1/32
+ip prefix-list CE02-OUT seq 65 permit 192.168.99.2/32
+ip prefix-list CE02-OUT seq 70 permit 192.168.99.3/32
+ip prefix-list CE02-OUT seq 75 permit 192.168.99.4/32
+ip prefix-list CE02-OUT seq 80 permit 192.168.99.5/32
+ip prefix-list CE02-OUT seq 85 permit 192.168.111.0/24
+ip prefix-list CE02-OUT seq 90 permit 192.168.245.0/30
+!
+ip prefix-list PL-SKYNET-AS300-PUBLIC-V4 seq 10 permit 172.16.0.0/24
+!
+ip prefix-list PL-TATA-17219 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-TATA-17219 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-TATA-17219 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-TATA-17219 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-TATA-17219 seq 50 permit 172.19.50.1/32
+!
+ip prefix-list PL-TATA-IN-V4-17219 seq 10 permit 172.19.10.1/32
+ip prefix-list PL-TATA-IN-V4-17219 seq 20 permit 172.19.20.1/32
+ip prefix-list PL-TATA-IN-V4-17219 seq 30 permit 172.19.30.1/32
+ip prefix-list PL-TATA-IN-V4-17219 seq 40 permit 172.19.40.1/32
+ip prefix-list PL-TATA-IN-V4-17219 seq 50 permit 172.19.50.1/32
+!
+ip prefix-list SKNT-CE02-CUST-NORMAL seq 10 permit 192.168.246.0/30
+!
+ip prefix-list SKNT-CE02-RTBH-HOSTS seq 10 permit 192.168.246.2/32
+ip sla 202
+ icmp-echo 10.202.0.2 source-interface GigabitEthernet0/1
+ threshold 1000
+ frequency 5
+ip sla schedule 202 life forever start-time now
+ip sla 204
+ icmp-echo 10.204.0.2 source-interface GigabitEthernet0/2
+ threshold 1000
+ frequency 5
+ip sla schedule 204 life forever start-time now
+!
+!
+ipv6 prefix-list PL-SKYNET-AS300-PUBLIC-V6 seq 10 permit FC16::/48
+!
+ipv6 prefix-list PL-TATA-IN-V6-TEST seq 10 permit FC11::1/128
+ipv6 prefix-list PL-TATA-IN-V6-TEST seq 20 permit FC12::1/128
+ipv6 prefix-list PL-TATA-IN-V6-TEST seq 30 permit FC13::1/128
+ipv6 prefix-list PL-TATA-IN-V6-TEST seq 40 permit FC14::1/128
+ipv6 prefix-list PL-TATA-IN-V6-TEST seq 50 permit FC15::1/128
+route-map RM-OUT-TO-TATA-AS500-V6 deny 1
+ description BLOCK RTBH COMMUNITY TOWARD TATA V6
+ match community SKNT-RTBH
+!
+route-map RM-OUT-TO-TATA-AS500-V6 deny 2
+ description BLOCK INTERNAL-ONLY COMMUNITY TOWARD TATA V6
+ match community SKNT-INTERNAL-ONLY
+!
+route-map RM-OUT-TO-TATA-AS500-V6 deny 3
+ description BLOCK CUSTOMER NO-EXPORT-TATA COMMUNITY V6
+ match community SKNT-NO-EXPORT-TATA
+!
+route-map RM-OUT-TO-TATA-AS500-V6 permit 10
+ description SKYNET AUTHORIZED V6 PREFIXES TO TATA AS500
+ match ipv6 address prefix-list PL-SKYNET-AS300-PUBLIC-V6
+ set community 300:300 additive
+!
+route-map RM-OUT-TO-TATA-AS500-V6 deny 100
+ description DROP EVERYTHING ELSE TO TATA AS500 V6
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 10
+ match community COMM-FROM-VERIZON-AS200
+ set tag 200
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 20
+ match community COMM-FROM-HE-AS400
+ set tag 400
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 30
+ match community COMM-FROM-TATA-AS500
+ set tag 500
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 40
+ match community COMM-FROM-SKYNET-AS300
+ set tag 300
+!
+route-map RM-BGP-COMMUNITY-TO-RIB-TAG permit 999
+!
+route-map RM-REDIST-STATIC-TATA-17219 permit 10
+ match ip address prefix-list PL-TATA-17219
+ set origin igp
+ set community 300:500 additive
+!
+route-map RM-REDIST-STATIC-TATA-17219 deny 100
+!
+route-map RM-SKNT-CE02-IN permit 5
+ description CE02 RTBH - ONLY AUTHORIZED /32 HOST
+ match ip address prefix-list SKNT-CE02-RTBH-HOSTS
+ match community SKNT-RTBH
+ set local-preference 50
+ set community 300:102 300:666 no-export additive
+ set ip next-hop 192.0.2.1
+!
+route-map RM-SKNT-CE02-IN deny 6
+ description DROP CE02 RTBH COMMUNITY IF PREFIX IS NOT AUTHORIZED
+ match community SKNT-RTBH
+!
+route-map RM-SKNT-CE02-IN permit 7
+ description CE02 INTERNAL-ONLY REQUEST
+ match ip address prefix-list SKNT-CE02-CUST-NORMAL
+ match community SKNT-INTERNAL-ONLY
+ set local-preference 150
+ set community 300:102 no-export additive
+!
+route-map RM-SKNT-CE02-IN permit 10
+ description CE02 REQUEST HIGH LOCAL-PREF
+ match ip address prefix-list SKNT-CE02-CUST-NORMAL
+ match community SKNT-LP-HIGH
+ set local-preference 250
+ set community 300:102 additive
+!
+route-map RM-SKNT-CE02-IN permit 20
+ description CE02 REQUEST NORMAL LOCAL-PREF
+ match ip address prefix-list SKNT-CE02-CUST-NORMAL
+ match community SKNT-LP-NORMAL
+ set local-preference 150
+ set community 300:102 additive
+!
+route-map RM-SKNT-CE02-IN permit 30
+ description CE02 REQUEST BACKUP LOCAL-PREF
+ match ip address prefix-list SKNT-CE02-CUST-NORMAL
+ match community SKNT-LP-BACKUP
+ set local-preference 90
+ set community 300:102 additive
+!
+route-map RM-SKNT-CE02-IN permit 40
+ description CE02 REQUEST LAST-RESORT LOCAL-PREF
+ match ip address prefix-list SKNT-CE02-CUST-NORMAL
+ match community SKNT-LP-LAST-RESORT
+ set local-preference 50
+ set community 300:102 additive
+!
+route-map RM-SKNT-CE02-IN permit 999
+ description CE02 DEFAULT NORMAL POLICY - ONLY AUTHORIZED CUSTOMER PREFIX
+ match ip address prefix-list SKNT-CE02-CUST-NORMAL
+ set local-preference 150
+ set community 300:102 300:150 additive
+!
+route-map RM-SKNT-CE02-IN deny 1000
+ description DROP ANY OTHER CE02 PREFIX NOT IN CUSTOMER CONTRACT
+!
+route-map RM-NAT-L3VPN-TATA-G01 permit 10
+ match ip address ACL-NAT-L3VPN-TATA
+ match interface GigabitEthernet0/1
+!
+route-map RM-NAT-L3VPN-TATA-G02 permit 10
+ match ip address ACL-NAT-L3VPN-TATA
+ match interface GigabitEthernet0/2
+!
+route-map RM-IN-FROM-TATA-AS500-V6 permit 10
+ description TATA AS500 INBOUND V6 - ONLY AUTHORIZED FC11-FC15 TEST PREFIXES
+ match ipv6 address prefix-list PL-TATA-IN-V6-TEST
+ set local-preference 250
+ set community 300:500 additive
+!
+route-map RM-IN-FROM-TATA-AS500-V6 deny 100
+ description DROP EVERYTHING ELSE FROM TATA AS500 V6
+!
+route-map RM-IN-FROM-TATA-AS500-V4 permit 10
+ description TATA AS500 INBOUND V4 - ONLY AUTHORIZED 172.19 TEST PREFIXES
+ match ip address prefix-list PL-TATA-IN-V4-17219
+ set local-preference 250
+ set community 300:500 additive
+!
+route-map RM-IN-FROM-TATA-AS500-V4 deny 100
+ description DROP EVERYTHING ELSE FROM TATA AS500 V4
+!
+route-map RM-OUT-TO-TATA-AS500 deny 1
+ description BLOCK RTBH COMMUNITY TOWARD TATA V4
+ match community SKNT-RTBH
+!
+route-map RM-OUT-TO-TATA-AS500 deny 2
+ description BLOCK INTERNAL-ONLY COMMUNITY TOWARD TATA V4
+ match community SKNT-INTERNAL-ONLY
+!
+route-map RM-OUT-TO-TATA-AS500 deny 3
+ description BLOCK CUSTOMER NO-EXPORT-TATA COMMUNITY V4
+ match community SKNT-NO-EXPORT-TATA
+!
+route-map RM-OUT-TO-TATA-AS500 permit 10
+ description SKYNET AUTHORIZED V4 PREFIXES TO TATA AS500
+ match ip address prefix-list PL-SKYNET-AS300-PUBLIC-V4
+ set community 300:300 additive
+!
+route-map RM-OUT-TO-TATA-AS500 deny 100
+ description DROP EVERYTHING ELSE TO TATA AS500 V4
+!
+!
+mpls ldp router-id Loopback0 force
+!
+control-plane
+ service-policy input PM-COPP
+!
+alias exec drop clear ip bgp *
+banner exec ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+banner incoming ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+banner login ^C
+
+                   <<< SKNT-PE02-vIOS >>>                  
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                   <<< SKNT-PE02-vIOS >>>                  
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+line vty 5 15
+ logging synchronous
+ login
+ transport input none
+!
+no scheduler allocate
+ntp source Loopback0
+ntp update-calendar
+ntp server 200.160.7.186 prefer
+ntp server 186.192.158.147
+ntp server 200.20.186.76
+event manager applet HIDE_TRACEBACK
+ event syslog pattern "%SYS-3-TRACEBACK"
+ action 1.0 syslog msg "Traceback suppressed by EEM"
+ action 2.0 set _exit_status "0"
+!
+end
+
+SKNT-PE02-vIOS#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+SKNT-PE02-vIOS(config)#line vty 0 4 
+SKNT-PE02-vIOS(config-line)#length 24 
+SKNT-PE02-vIOS(config-line)#line console 0 
+SKNT-PE02-vIOS(config-line)#length 24 
+SKNT-PE02-vIOS(config-line)#end 
+SKNT-PE02-vIOS#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+ISP-TATA.evelab.com Gi0/1          120        R               Et0/1
+ISP-TATA.evelab.com Gi0/2          120        R               Et0/2
+SKNT-PE03-vMX03     Gi0/4          120        B,R             ge-0/0/4
+CE02-L3VPN-01.evelabGi0/5          120        R               Et0/0
+SKNT-P01-ISP.evelab.Gi0/0          15         R               Gi0/3
+
+Total entries displayed: 5
+
+SKNT-PE02-vIOS#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 10.202.0.2
+    IPV6: FC23::
+    IP: 10.204.0.2
+    IPV6: FC68::
+    IP: 192.168.1.251
+    IP: 192.168.222.2
+    IP: 10.0.0.21
+    IPV6: FC03::
+SKNT-PE02-vIOS#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+
