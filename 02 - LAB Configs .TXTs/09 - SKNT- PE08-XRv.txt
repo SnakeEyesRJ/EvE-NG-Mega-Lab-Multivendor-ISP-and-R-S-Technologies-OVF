@@ -1,0 +1,613 @@
+﻿RP/0/0/CPU0:Oct  4 23:50:43.415 BRT: bgp[1052]: %ROUTING-BGP-5-ADJCHANGE_DETAIL : neighbor fc32:: Up (VRF: default; AFI/SAFI: 2/1) (AS: 777) 
+
+RP/0/0/CPU0:SKNT-PE08-XRv#
+RP/0/0/CPU0:SKNT-PE08-XRv#configure terminal
+Sun Oct  4 23:50:49.187 BRT
+RP/0/0/CPU0:SKNT-PE08-XRv(config)#commit
+Sun Oct  4 23:50:49.397 BRT
+No configuration changes to commit.
+RP/0/0/CPU0:SKNT-PE08-XRv(config)#end
+RP/0/0/CPU0:Oct  4 23:50:49.467 BRT: config[65741]: %MGBL-SYS-5-CONFIG_I : Configured from console by eve 
+RP/0/0/CPU0:SKNT-PE08-XRv#terminal length 0
+Sun Oct  4 23:50:49.557 BRT
+RP/0/0/CPU0:SKNT-PE08-XRv#show running-config
+Sun Oct  4 23:50:49.607 BRT
+Building configuration...
+!! IOS XR Configuration 6.1.3
+!! Last configuration change at Sun Oct  4 23:49:25 2026 by eve
+!
+hostname SKNT-PE08-XRv
+! ==============================================================
+! SKYNET NTP STANDARD
+! CISCO IOS XR / XRv
+! ==============================================================
+! --------------------------------------------------------------
+! LOCAL TIMEZONE
+! BRAZIL / SAO PAULO - UTC-3
+! --------------------------------------------------------------
+clock timezone BRT -3
+banner motd %
+
+                    <<< SKNT-PE08-XRv >>>                 
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+%
+banner login %
+
+                    <<< SKNT-PE08-XRv >>>                 
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+%
+logging console informational
+service timestamps log datetime localtime msec show-timezone
+domain name-server 8.8.8.8
+domain name-server 1.1.1.1
+domain name-server 192.168.100.1
+domain lookup disable
+domain lookup source-interface Loopback0
+username eve
+ group root-lr
+ group cisco-support
+ secret 5 $1$6dL9$p4wLpbDLCb6IKWhqUP87e/
+!
+line console
+ exec-timeout 0 0
+!
+line default
+ exec-timeout 0 0
+ access-class ingress SSH-ALLOWED
+ transport input ssh
+!
+! --------------------------------------------------------------
+! CLEANUP OLD NTP CONFIGURATION
+! --------------------------------------------------------------
+ntp
+ server 186.192.158.147 minpoll 4 maxpoll 4 iburst
+ server 200.20.186.76 minpoll 4 maxpoll 4 iburst
+ server 200.160.7.186 minpoll 4 maxpoll 4 prefer iburst
+ ! --------------------------------------------------------------
+ ! NTP SOURCE
+ ! --------------------------------------------------------------
+ source Loopback0
+ update-calendar
+!
+alias exex drop clear ip bgp *
+control-plane
+ management-plane
+  inband
+   interface GigabitEthernet0/0/0/0
+    allow all
+   !
+   interface GigabitEthernet0/0/0/1
+    allow all
+   !
+  !
+ !
+!
+ipv6 access-list QOS-CONTROL-TRAFFIC-V6
+ 10 permit ospf any any
+ 20 permit tcp any any eq bgp
+ 30 permit tcp any eq bgp any
+ 40 permit tcp any any eq 646
+ 50 permit tcp any eq 646 any
+ 60 permit udp any any eq 646
+ 70 permit udp any eq 646 any
+ 80 permit icmpv6 any any
+ 90 permit udp any eq 1698 any
+ 100 permit udp any any eq 1699
+ 110 permit udp any eq 1699 any
+ 120 permit udp any any eq ntp
+ 130 permit udp any eq ntp any
+!
+ipv4 access-list COPP-MGMT
+ 10 permit tcp 172.16.0.0 0.0.0.255 any eq ssh
+!
+ipv4 access-list SSH-ALLOWED
+ 10 permit ipv4 172.16.0.0 0.0.0.255 any
+ 20 deny ipv4 any any log
+!
+ipv4 access-list COPP-MONITOR
+ 10 permit icmp any any echo
+ 20 permit icmp any any echo-reply
+ 30 permit icmp any any ttl-exceeded
+ 40 permit icmp any any unreachable
+ 50 permit udp any any eq ntp
+!
+ipv4 access-list COPP-CRITICAL
+ 10 permit ospf any any
+ 20 permit tcp any any eq bgp
+ 30 permit tcp any eq bgp any
+ 40 permit tcp any any eq ldp
+ 50 permit tcp any eq ldp any
+ 60 permit udp any any eq ldp
+ 70 permit udp any eq ldp any
+!
+! ============================================================
+! SKNT-PE08-XRV - QOS CONTROL ACLS
+! Required by class-map CM-CONTROL
+! ============================================================
+ipv4 access-list QOS-CONTROL-TRAFFIC
+ 10 permit ospf any any
+ 20 permit tcp any any eq bgp
+ 30 permit tcp any eq bgp any
+ 40 permit tcp any any eq ldp
+ 50 permit tcp any eq ldp any
+ 60 permit udp any any eq ldp
+ 70 permit udp any eq ldp any
+ 80 permit icmp any any
+ 90 permit udp any eq 1698 any
+ 100 permit udp any any eq 1699
+ 110 permit udp any eq 1699 any
+ 120 permit udp any any eq ntp
+ 130 permit udp any eq ntp any
+!
+class-map match-any CM-COPP-MGMT
+ match access-group ipv4 COPP-MGMT 
+ end-class-map
+! 
+class-map match-any CM-COPP-MONITOR
+ match access-group ipv4 COPP-MONITOR 
+ end-class-map
+! 
+class-map match-any CM-COPP-CRITICAL
+ match access-group ipv4 COPP-CRITICAL 
+ end-class-map
+! 
+policy-map PM-COPP
+ class CM-COPP-CRITICAL
+  police rate 1 mbps burst 187500 bytes 
+   conform-action transmit
+   exceed-action drop
+  ! 
+ ! 
+ class CM-COPP-MGMT
+  police rate 512 kbps burst 96000 bytes 
+   conform-action transmit
+   exceed-action drop
+  ! 
+ ! 
+ class CM-COPP-MONITOR
+  police rate 256 kbps burst 48000 bytes 
+   conform-action transmit
+   exceed-action drop
+  ! 
+ ! 
+ class class-default
+  police rate 64 kbps burst 12000 bytes 
+   conform-action transmit
+   exceed-action drop
+  ! 
+ ! 
+ end-policy-map
+! 
+! --- LOOPBACKS ---
+interface Loopback0
+ description Internal-Transit
+ ipv4 address 192.168.1.101 255.255.255.255
+ ipv6 address fc93::1/128
+ ipv6 enable
+!
+interface Loopback1
+ description Provider-Lan
+ ipv4 address 172.16.0.101 255.255.255.255
+!
+interface Loopback16
+ description SKNT-IPV6-ISP-AGGREGATE-ANCHOR
+ ipv6 address fc16::101/128
+ ipv6 enable
+!
+interface MgmtEth0/0/CPU0/0
+ description NOT-USED
+ shutdown
+!
+interface GigabitEthernet0/0/0/0
+ description To-ISP-SPARKLE
+ ipv4 address 10.201.201.1 255.255.255.252
+ ipv6 address fc32::1/127
+ ipv6 enable
+!
+interface GigabitEthernet0/0/0/1
+ description To-SKNT-AGG.SW
+ ipv4 address 10.34.0.2 255.255.255.252
+ ipv6 address fc34::/127
+ ipv6 enable
+!
+interface GigabitEthernet0/0/0/2
+ description NOT-USED
+ shutdown
+!
+prefix-set PS-SPARKLE-IN-V4
+  172.19.10.1/32,
+  172.19.20.1/32,
+  172.19.30.1/32,
+  172.19.40.1/32,
+  172.19.50.1/32
+end-set
+!
+prefix-set PS-SPARKLE-IN-V6
+  fc11::1/128,
+  fc12::1/128,
+  fc13::1/128,
+  fc14::1/128,
+  fc15::1/128
+end-set
+!
+prefix-set PFX-SPARKLE-IN-V4
+  172.19.10.1/32,
+  172.19.20.1/32,
+  172.19.30.1/32,
+  172.19.40.1/32,
+  172.19.50.1/32
+end-set
+!
+prefix-set PFX-SPARKLE-IN-V6
+  fc11::1/128,
+  fc12::1/128,
+  fc13::1/128,
+  fc14::1/128,
+  fc15::1/128
+end-set
+!
+prefix-set PS-SPARKLE-OUT-V4
+  172.16.0.0/24
+end-set
+!
+prefix-set PS-SPARKLE-OUT-V6
+  fc16::/48
+end-set
+!
+prefix-set PS-SKYNET-OUT-SPARKLE-V4
+  172.16.0.0/24
+end-set
+!
+prefix-set PS-SKYNET-OUT-SPARKLE-V6
+  fc16::/48
+end-set
+!
+community-set CS-SKNT-RTBH
+  300:666
+end-set
+!
+community-set CS-SKNT-INTERNAL-ONLY
+  300:778
+end-set
+!
+community-set CS-SKNT-ORIGIN-SPARKLE
+  300:777
+end-set
+!
+route-policy RP-SPARKLE-IN-V4
+  if destination in PFX-SPARKLE-IN-V4 then
+    set community (300:777) additive
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-SPARKLE-IN-V6
+  if destination in PFX-SPARKLE-IN-V6 then
+    set community (300:777) additive
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-SPARKLE-OUT-V4
+  if community matches-any CS-SKNT-RTBH then
+    drop
+  endif
+  if community matches-any CS-SKNT-INTERNAL-ONLY then
+    drop
+  endif
+  if destination in PS-SPARKLE-OUT-V4 then
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-SPARKLE-OUT-V6
+  if community matches-any CS-SKNT-RTBH then
+    drop
+  endif
+  if community matches-any CS-SKNT-INTERNAL-ONLY then
+    drop
+  endif
+  if destination in PS-SPARKLE-OUT-V6 then
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-OUT-TO-SPARKLE-V4
+  if community matches-any CS-SKNT-RTBH then
+    drop
+  elseif community matches-any CS-SKNT-INTERNAL-ONLY then
+    drop
+  elseif destination in PS-SKYNET-OUT-SPARKLE-V4 then
+    set community (300:300) additive
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-OUT-TO-SPARKLE-V6
+  if community matches-any CS-SKNT-RTBH then
+    drop
+  elseif community matches-any CS-SKNT-INTERNAL-ONLY then
+    drop
+  elseif destination in PS-SKYNET-OUT-SPARKLE-V6 then
+    set community (300:300) additive
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-IN-FROM-SPARKLE-V4
+  if destination in PS-SPARKLE-IN-V4 then
+    set local-preference 40
+    set community (300:777) additive
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+route-policy RP-IN-FROM-SPARKLE-V6
+  if destination in PS-SPARKLE-IN-V6 then
+    set local-preference 40
+    set community (300:777) additive
+    pass
+  else
+    drop
+  endif
+end-policy
+!
+router static
+ address-family ipv4 unicast
+  172.16.0.0/24 Null0 254
+ !
+ address-family ipv6 unicast
+  fc16::/48 Null0 254
+ !
+!
+router ospf 1
+ router-id 192.168.1.101
+ mpls ldp sync
+ auto-cost reference-bandwidth 10000
+ area 0
+  mpls traffic-eng
+  interface Loopback0
+   passive enable
+  !
+  interface GigabitEthernet0/0/0/1
+   cost 30
+   network point-to-point
+  !
+ !
+ mpls traffic-eng router-id Loopback0
+!
+router ospf q
+!
+router ospfv3 1
+ router-id 192.168.1.101
+ auto-cost reference-bandwidth 10000
+ area 0
+  interface Loopback0
+   passive
+  !
+  interface Bundle-Ether1
+   cost 30
+   network point-to-point
+  !
+  interface GigabitEthernet0/0/0/1
+   cost 30
+   network point-to-point
+  !
+ !
+!
+! --- iBGP AS 300 - LOOPBACK0 ONLY ---
+router bgp 300
+ bgp router-id 192.168.1.101
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ bgp log neighbor changes detail
+ address-family ipv4 unicast
+  network 10.34.0.0/30
+  network 10.201.201.0/30
+  network 172.16.0.0/24
+  network 172.16.0.101/32
+ !
+ address-family vpnv4 unicast
+ !
+ address-family ipv6 unicast
+  network fc16::/48
+  network fc32::/127
+  network fc34::/127
+  network fc93::1/128
+ !
+ neighbor-group NG-SKYNET-RR-PEERS
+  remote-as 300
+  update-source Loopback0
+  address-family ipv4 unicast
+  !
+  address-family ipv6 unicast
+  !
+ !
+ neighbor fc32::
+  remote-as 777
+  password encrypted 0969580C15041532595C567F
+  description To-ISP-SPARKLE
+  ttl-security
+  address-family ipv6 unicast
+   route-policy RP-IN-FROM-SPARKLE-V6 in
+   maximum-prefix 10 75 warning-only
+   route-policy RP-OUT-TO-SPARKLE-V6 out
+  !
+ !
+ neighbor fc62::1
+  remote-as 300
+  description To-SKNT-AGG.SW
+  update-source Loopback0
+  address-family ipv6 unicast
+   next-hop-self
+   soft-reconfiguration inbound always
+  !
+ !
+ neighbor 192.168.1.4
+  remote-as 300
+  use neighbor-group NG-SKYNET-RR-PEERS
+  timers 3 10
+  description To-SKNT-AGG.SW
+  update-source Loopback0
+  address-family ipv4 unicast
+   next-hop-self
+   soft-reconfiguration inbound always
+  !
+  address-family vpnv4 unicast
+  !
+ !
+ neighbor 10.201.201.2
+  remote-as 777
+  timers 3 10
+  password encrypted 06231924404F0B395747405E
+  description To-ISP-SPARKLE
+  ttl-security
+  address-family ipv4 unicast
+   route-policy RP-IN-FROM-SPARKLE-V4 in
+   maximum-prefix 10 75 warning-only
+   route-policy RP-OUT-TO-SPARKLE-V4 out
+  !
+ !
+!
+mpls oam
+!
+rsvp
+ interface Bundle-Ether1
+  bandwidth 50000
+ !
+ interface GigabitEthernet0/0/0/1
+  bandwidth 50000
+ !
+!
+! --- MPLS TRAFFIC ENGINEERING / RSVP ---
+mpls traffic-eng
+ interface Bundle-Ether1
+ !
+ interface GigabitEthernet0/0/0/1
+ !
+!
+! ---- Reattach MPLS, RSVP, TE to the physical interface ----
+mpls ldp
+ graceful-restart
+ discovery
+  targeted-hello holdtime 45
+  targeted-hello interval 5
+ !
+ router-id 192.168.1.101
+ neighbor
+  192.168.1.1:0 password disable
+  192.168.1.2:0 password disable
+  192.168.1.3:0 password disable
+  192.168.1.4:0 password disable
+  192.168.1.5:0 password disable
+  192.168.1.100:0 password disable
+  192.168.1.200:0 password disable
+  192.168.1.250:0 password disable
+  192.168.1.251:0 password disable
+ !
+ session protection
+ address-family ipv4
+  discovery targeted-hello accept
+  neighbor 192.168.1.1 targeted
+  neighbor 192.168.1.2 targeted
+  neighbor 192.168.1.3 targeted
+  neighbor 192.168.1.4 targeted
+  neighbor 192.168.1.5 targeted
+  neighbor 192.168.1.100 targeted
+  neighbor 192.168.1.200 targeted
+  neighbor 192.168.1.250 targeted
+  neighbor 192.168.1.251 targeted
+ !
+ interface Bundle-Ether1
+  discovery hello holdtime 45
+  discovery hello interval 5
+ !
+ interface GigabitEthernet0/0/0/1
+  discovery hello holdtime 45
+  discovery hello interval 5
+ !
+!
+lldp
+!
+mpls label range table 0 101000 101999
+! ============================================================
+! SKNT-PE08-XRv - SSH HARDENING
+! Permit SSH only from 172.16.0.0/24
+! ACL name: SSH-ALLOWED
+! ============================================================
+ssh server v2
+ssh server vrf default ipv4 access-list SSH-ALLOWED
+end
+
+RP/0/0/CPU0:SKNT-PE08-XRv#terminal length 24
+Sun Oct  4 23:50:51.118 BRT
+RP/0/0/CPU0:SKNT-PE08-XRv#show lldp neighbor
+Sun Oct  4 23:50:51.188 BRT
+Capability codes:
+        (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+        (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID       Local Intf          Hold-time  Capability     Port ID
+ISP-SPARKLE.evelab.c Gi0/0/0/0           120        R               Et0/0
+SKNT-AGG.SW.evelab.c Gi0/0/0/1           120        R               Et1/1
+
+Total entries displayed: 2
+
+RP/0/0/CPU0:SKNT-PE08-XRv#show lldp neighbor detail | i IPv4 address:
+Sun Oct  4 23:50:51.338 BRT
+  IPv4 address: 10.201.201.2
+  IPv4 address: 10.34.0.1
+RP/0/0/CPU0:SKNT-PE08-XRv#show lldp neighbor detail | i IPv6 address:
+Sun Oct  4 23:50:51.498 BRT
+  IPv6 address: fc32::
