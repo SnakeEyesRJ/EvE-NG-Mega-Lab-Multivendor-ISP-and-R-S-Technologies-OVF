@@ -1,0 +1,395 @@
+﻿root@SKNT-PE05-vMX02# run set cli screen-length 0 
+Screen length set to 0
+run show configuration | display set
+run show lldp neighbors
+run set cli screen-length 24
+
+[edit]
+root@SKNT-PE05-vMX02# run show configuration | display set 
+set version 14.1R1.10
+set system host-name SKNT-PE05-vMX02
+set system domain-name evelab.com
+set system time-zone America/Sao_Paulo
+set system root-authentication encrypted-password "$1$HoYXFGKE$Fcc13q9I0iKrGjKJFJY8d/"
+set system name-server 8.8.8.8
+set system name-server 1.1.1.1
+set system name-server 192.168.100.1
+set system login announcement "### PE-05-vMX-02 ###"
+set system login message "### SKNT-PE05-vMX02 ###"
+set system login user eve uid 2000
+set system login user eve class super-user
+set system login user eve authentication encrypted-password "$1$nGDx2d.6$cEUmCbQmSTGzu5iEctLOu1"
+set system services ssh root-login deny
+set system services ssh protocol-version v2
+set system services ssh ciphers "aes256-gcm@openssh.com"
+set system services ssh ciphers "aes128-gcm@openssh.com"
+set system services ssh ciphers aes256-ctr
+set system services ssh ciphers aes128-ctr
+set system services ssh macs hmac-sha2-512
+set system services ssh macs hmac-sha2-256
+set system services ssh macs hmac-sha1
+set system services ssh key-exchange ecdh-sha2-nistp521
+set system services ssh key-exchange ecdh-sha2-nistp384
+set system services ssh key-exchange ecdh-sha2-nistp256
+set system services ssh key-exchange group-exchange-sha2
+set system services ssh key-exchange dh-group14-sha1
+set system services ssh connection-limit 5
+set system services ssh rate-limit 10
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands any
+set system ntp boot-server 200.160.7.186
+set system ntp server 200.160.7.186 prefer
+set system ntp server 186.192.158.147
+set system ntp server 200.20.186.76
+set system ntp source-address 192.168.1.5
+set chassis network-services enhanced-ip
+set interfaces ge-0/0/0 unit 0 description To-ISP-VERIZON
+set interfaces ge-0/0/0 unit 0 family inet address 10.200.200.1/30
+set interfaces ge-0/0/0 unit 0 family inet6 address fc10::1/127
+set interfaces ge-0/0/1 unit 0 description To-SKNT-AGG.SW
+set interfaces ge-0/0/1 unit 0 family inet address 172.16.0.2/24 vrrp-group 1 virtual-address 172.16.0.240
+set interfaces ge-0/0/1 unit 0 family inet address 172.16.0.2/24 vrrp-group 1 preempt
+set interfaces ge-0/0/1 unit 0 family inet address 172.16.0.2/24 vrrp-group 1 accept-data
+set interfaces ge-0/0/1 unit 0 family inet6 address fc07::1/127
+set interfaces ge-0/0/1 unit 0 family mpls
+set interfaces ge-0/0/2 unit 0 description To-SKNT-P01-ISP
+set interfaces ge-0/0/2 unit 0 family inet address 10.0.0.10/30
+set interfaces ge-0/0/2 unit 0 family inet6 address fc04::1/127
+set interfaces ge-0/0/2 unit 0 family mpls
+set interfaces ge-0/0/3 unit 0 description To-SKNT-PE07-POP02
+set interfaces ge-0/0/3 unit 0 family inet address 10.0.0.17/30
+set interfaces ge-0/0/3 unit 0 family inet6 address fc06::/127
+set interfaces ge-0/0/3 unit 0 family mpls
+set interfaces ge-0/0/4 description NOT-USED
+set interfaces ge-0/0/4 disable
+set interfaces ge-0/0/5 description To-DC-eVPN-04
+set interfaces ge-0/0/5 flexible-vlan-tagging
+set interfaces ge-0/0/5 encapsulation flexible-ethernet-services
+set interfaces ge-0/0/5 unit 600 description To-DC-eVPN-04
+set interfaces ge-0/0/5 unit 600 encapsulation vlan-bridge
+set interfaces ge-0/0/5 unit 600 vlan-id 600
+set interfaces ge-0/0/6 description To-EVC300-CUSTOMER
+set interfaces ge-0/0/6 flexible-vlan-tagging
+set interfaces ge-0/0/6 encapsulation flexible-ethernet-services
+set interfaces ge-0/0/6 unit 300 description EVC300-CUST-VLAN300-POP-PUSH
+set interfaces ge-0/0/6 unit 300 encapsulation vlan-ccc
+set interfaces ge-0/0/6 unit 300 vlan-id 300
+set interfaces ge-0/0/6 unit 300 input-vlan-map pop
+set interfaces ge-0/0/6 unit 300 output-vlan-map push
+set interfaces ge-0/0/6 unit 300 family ccc policer input EVC300-IN-100M
+set interfaces ge-0/0/7 description To-PWPC-PE05
+set interfaces ge-0/0/7 encapsulation ethernet-ccc
+set interfaces ge-0/0/7 unit 0
+set interfaces ge-0/0/8 description NOT-USED
+set interfaces ge-0/0/8 disable
+set interfaces ge-0/0/9 description NOT-USED
+set interfaces ge-0/0/9 disable
+set interfaces irb unit 600 description L3-GW-VLAN600-DC-eVPN
+set interfaces irb unit 600 family inet address 10.35.0.254/24
+set interfaces irb unit 600 family inet6 address 2001:db8:35:600::254/64
+set interfaces lo0 unit 1 description Internal-Transit
+set interfaces lo0 unit 1 family inet filter input COPP
+set interfaces lo0 unit 1 family inet address 192.168.1.5/32
+set interfaces lo0 unit 1 family inet6 address fc61::1/128
+set interfaces lo0 unit 1 family mpls
+set routing-options static route 192.168.1.3/32 lsp-next-hop LSP-TO-PE04
+set routing-options static route 192.168.1.251/32 lsp-next-hop LSP-TO-PE03
+set routing-options router-id 192.168.1.5
+set routing-options autonomous-system 300
+set protocols rsvp interface ge-0/0/1.0
+set protocols rsvp interface ge-0/0/2.0
+set protocols rsvp interface ge-0/0/3.0
+set protocols rsvp interface lo0.1
+set protocols mpls no-propagate-ttl
+set protocols mpls label-switched-path LSP-TO-PE04 to 192.168.1.3
+set protocols mpls label-switched-path LSP-TO-PE04 ldp-tunneling
+set protocols mpls label-switched-path LSP-TO-PE04 primary PE05-PE04-PRIMARY
+set protocols mpls label-switched-path LSP-TO-PE04 secondary PE05-PE04-BACKUP standby
+set protocols mpls label-switched-path LSP-TO-PE03 to 192.168.1.251
+set protocols mpls label-switched-path LSP-TO-PE03 ldp-tunneling
+set protocols mpls label-switched-path LSP-TO-PE03 primary PE05-PE03-PRIMARY
+set protocols mpls label-switched-path LSP-TO-PE03 secondary PE05-PE03-BACKUP standby
+set protocols mpls path PE05-PE04-PRIMARY 10.0.0.18 loose
+set protocols mpls path PE05-PE04-BACKUP 10.0.0.9 loose
+set protocols mpls path PE05-PE03-PRIMARY 10.0.0.18 loose
+set protocols mpls path PE05-PE03-BACKUP 10.0.0.9 loose
+set protocols mpls interface ge-0/0/1.0
+set protocols mpls interface ge-0/0/2.0
+set protocols mpls interface ge-0/0/3.0
+set protocols mpls interface lo0.1
+set protocols bgp group iBGPv4 type internal
+set protocols bgp group iBGPv4 description iBGPv4
+set protocols bgp group iBGPv4 local-address 192.168.1.5
+set protocols bgp group iBGPv4 family inet unicast
+set protocols bgp group iBGPv4 family inet-vpn unicast
+set protocols bgp group iBGPv4 family evpn signaling
+set protocols bgp group iBGPv4 export IBGP-VPN-EXPORT
+set protocols bgp group iBGPv4 export SEND-DIRECT
+set protocols bgp group iBGPv4 export NEXT-HOP-SELF
+set protocols bgp group iBGPv4 export EXPORT-VPN
+set protocols bgp group iBGPv4 peer-as 300
+set protocols bgp group iBGPv4 local-as 300
+set protocols bgp group iBGPv4 graceful-restart
+set protocols bgp group iBGPv4 multipath
+set protocols bgp group iBGPv4 neighbor 192.168.1.3 description To-SKNT-PE04-vMX01
+set protocols bgp group iBGPv4 neighbor 192.168.1.3 local-address 192.168.1.5
+set protocols bgp group iBGPv4 neighbor 192.168.1.251 description To-SKNT-PE03-vMX03
+set protocols bgp group iBGPv4 neighbor 192.168.1.251 local-address 192.168.1.5
+set protocols bgp group iBGPv4 neighbor 192.168.1.2 description To-SKNT-P01-ISP
+set protocols bgp group iBGPv4 neighbor 192.168.1.2 local-address 192.168.1.5
+set protocols bgp group iBGPv4 neighbor 192.168.1.100 description To-SKNT-PE06-POP01
+set protocols bgp group iBGPv4 neighbor 192.168.1.100 local-address 192.168.1.5
+set protocols bgp group iBGPv4 neighbor 192.168.1.200 description To-SKNT-PE07-POP02
+set protocols bgp group iBGPv4 neighbor 192.168.1.200 local-address 192.168.1.5
+set protocols bgp group BGP-v4-VERIZON type external
+set protocols bgp group BGP-v4-VERIZON description BGP-v4-VERIZON
+set protocols bgp group BGP-v4-VERIZON import IMPORT-FROM-VERIZON-V4
+set protocols bgp group BGP-v4-VERIZON family inet unicast prefix-limit maximum 10
+set protocols bgp group BGP-v4-VERIZON peer-as 200
+set protocols bgp group BGP-v4-VERIZON local-as 300
+set protocols bgp group BGP-v4-VERIZON graceful-restart
+set protocols bgp group BGP-v4-VERIZON neighbor 10.200.200.2 description LINK-BGPv4-VERIZON
+set protocols bgp group BGP-v4-VERIZON neighbor 10.200.200.2 authentication-key "$9$k.PT/CuREy369pOBSyrlKW7-dbsgaZVb"
+set protocols bgp group BGP-v4-VERIZON neighbor 10.200.200.2 export eBGP-OUT-V4
+set protocols bgp group iBGPv6 type internal
+set protocols bgp group iBGPv6 description iBGPv6
+set protocols bgp group iBGPv6 local-address fc07::1
+set protocols bgp group iBGPv6 export SEND-DIRECT
+set protocols bgp group iBGPv6 export NEXT-HOP-SELF
+set protocols bgp group iBGPv6 peer-as 300
+set protocols bgp group iBGPv6 local-as 300
+set protocols bgp group iBGPv6 neighbor fc04:: description To-SKNT-P01-ISP
+set protocols bgp group iBGPv6 neighbor fc04:: local-address fc04::1
+set protocols bgp group iBGPv6 neighbor fc07:: description To-SKNT-PE04-vMX01
+set protocols bgp group iBGPv6 neighbor fc07:: local-address fc07::1
+set protocols bgp group iBGPv6 neighbor fc63::1 description To-SKNT-PE06-POP01-LO0-v6
+set protocols bgp group iBGPv6 neighbor fc63::1 local-address fc61::1
+set protocols bgp group iBGPv6 neighbor fc64::1 description To-SKNT-PE07-POP02-LO0-v6
+set protocols bgp group iBGPv6 neighbor fc64::1 local-address fc61::1
+set protocols bgp group BGP-v6-VERIZON type external
+set protocols bgp group BGP-v6-VERIZON description BGP-v6-VERIZON
+set protocols bgp group BGP-v6-VERIZON import IMPORT-FROM-VERIZON-V6
+set protocols bgp group BGP-v6-VERIZON family inet6 unicast prefix-limit maximum 10
+set protocols bgp group BGP-v6-VERIZON peer-as 200
+set protocols bgp group BGP-v6-VERIZON local-as 300
+set protocols bgp group BGP-v6-VERIZON neighbor fc10:: description LINK-BGPv6-VERIZON
+set protocols bgp group BGP-v6-VERIZON neighbor fc10:: local-address fc10::1
+set protocols bgp group BGP-v6-VERIZON neighbor fc10:: authentication-key "$9$xvrNdwaZjmPQgoJDHkTQzFn9uOBIESlK1I"
+set protocols bgp group BGP-v6-VERIZON neighbor fc10:: export eBGP-OUT-V6
+set protocols ospf traffic-engineering
+set protocols ospf reference-bandwidth 10g
+set protocols ospf area 0.0.0.0 interface ge-0/0/3.0
+set protocols ospf area 0.0.0.0 interface lo0.1 interface-type p2p
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0
+set protocols ospf area 0.0.0.0 interface ge-0/0/1.0
+set protocols ospf3 graceful-restart restart-duration 300
+set protocols ospf3 reference-bandwidth 10g
+set protocols ospf3 area 0.0.0.0 interface ge-0/0/2.0
+set protocols ospf3 area 0.0.0.0 interface ge-0/0/3.0
+set protocols ospf3 area 0.0.0.0 interface lo0.1 passive
+set protocols ldp interface ge-0/0/1.0
+set protocols ldp interface ge-0/0/2.0
+set protocols ldp interface ge-0/0/3.0
+set protocols ldp interface lo0.1
+set protocols ldp neighbor 192.168.1.1
+set protocols ldp neighbor 192.168.1.2
+set protocols ldp neighbor 192.168.1.3
+set protocols ldp neighbor 192.168.1.4
+set protocols ldp neighbor 192.168.1.100
+set protocols ldp neighbor 192.168.1.101
+set protocols ldp neighbor 192.168.1.200
+set protocols ldp neighbor 192.168.1.250
+set protocols ldp neighbor 192.168.1.251
+set protocols ldp targeted-hello hello-interval 5
+set protocols l2circuit neighbor 192.168.1.3 interface ge-0/0/6.300 virtual-circuit-id 300
+set protocols l2circuit neighbor 192.168.1.3 interface ge-0/0/6.300 description To-SKNT-PE04-vMX01-EVC300
+set protocols l2circuit neighbor 192.168.1.3 interface ge-0/0/7.0 virtual-circuit-id 301
+set protocols l2circuit neighbor 192.168.1.3 interface ge-0/0/7.0 description PW-to-PE04
+set protocols lldp management-address 192.168.1.5
+set protocols lldp port-id-subtype interface-name
+set protocols lldp interface all
+set policy-options prefix-list PL-VERIZON-IN-V4 172.19.10.1/32
+set policy-options prefix-list PL-VERIZON-IN-V4 172.19.20.1/32
+set policy-options prefix-list PL-VERIZON-IN-V4 172.19.30.1/32
+set policy-options prefix-list PL-VERIZON-IN-V4 172.19.40.1/32
+set policy-options prefix-list PL-VERIZON-IN-V4 172.19.50.1/32
+set policy-options prefix-list PL-VERIZON-IN-V6 fc11::1/128
+set policy-options prefix-list PL-VERIZON-IN-V6 fc12::1/128
+set policy-options prefix-list PL-VERIZON-IN-V6 fc13::1/128
+set policy-options prefix-list PL-VERIZON-IN-V6 fc14::1/128
+set policy-options prefix-list PL-VERIZON-IN-V6 fc15::1/128
+set policy-options prefix-list eBGP-OUT-V4 172.16.0.0/24
+set policy-options prefix-list eBGP-OUT-V6 fc16::/48
+set policy-options policy-statement EXPORT-VPN term 1 then accept
+set policy-options policy-statement IBGP-VPN-EXPORT term 1 from family inet-vpn
+set policy-options policy-statement IBGP-VPN-EXPORT term 1 then accept
+set policy-options policy-statement IMPORT-FROM-VERIZON-V4 term 10 from prefix-list PL-VERIZON-IN-V4
+set policy-options policy-statement IMPORT-FROM-VERIZON-V4 term 10 then tag 200
+set policy-options policy-statement IMPORT-FROM-VERIZON-V4 term 10 then local-preference 120
+set policy-options policy-statement IMPORT-FROM-VERIZON-V4 term 10 then community add COMM-FROM-VERIZON-AS200
+set policy-options policy-statement IMPORT-FROM-VERIZON-V4 term 10 then accept
+set policy-options policy-statement IMPORT-FROM-VERIZON-V4 term 999 then reject
+set policy-options policy-statement IMPORT-FROM-VERIZON-V6 term 10 from prefix-list PL-VERIZON-IN-V6
+set policy-options policy-statement IMPORT-FROM-VERIZON-V6 term 10 then tag 200
+set policy-options policy-statement IMPORT-FROM-VERIZON-V6 term 10 then local-preference 120
+set policy-options policy-statement IMPORT-FROM-VERIZON-V6 term 10 then community add COMM-FROM-VERIZON-AS200
+set policy-options policy-statement IMPORT-FROM-VERIZON-V6 term 10 then accept
+set policy-options policy-statement IMPORT-FROM-VERIZON-V6 term 999 then reject
+set policy-options policy-statement NEXT-HOP-SELF term 1 from route-type external
+set policy-options policy-statement NEXT-HOP-SELF term 1 then next-hop self
+set policy-options policy-statement SEND-DIRECT term 1 from protocol direct
+set policy-options policy-statement SEND-DIRECT term 1 then accept
+set policy-options policy-statement TAG-FROM-VERIZON-AS200 term 10 then tag 200
+set policy-options policy-statement TAG-FROM-VERIZON-AS200 term 10 then community add COMM-FROM-VERIZON-AS200
+set policy-options policy-statement TAG-FROM-VERIZON-AS200 term 10 then accept
+set policy-options policy-statement eBGP-OUT-V4 term BLOCK-RTBH from community SKNT-RTBH
+set policy-options policy-statement eBGP-OUT-V4 term BLOCK-RTBH then reject
+set policy-options policy-statement eBGP-OUT-V4 term BLOCK-INTERNAL-ONLY from community SKNT-INTERNAL-ONLY
+set policy-options policy-statement eBGP-OUT-V4 term BLOCK-INTERNAL-ONLY then reject
+set policy-options policy-statement eBGP-OUT-V4 term BLOCK-NO-VERIZON from community SKNT-NO-EXPORT-VERIZON
+set policy-options policy-statement eBGP-OUT-V4 term BLOCK-NO-VERIZON then reject
+set policy-options policy-statement eBGP-OUT-V4 term 1 from prefix-list eBGP-OUT-V4
+set policy-options policy-statement eBGP-OUT-V4 term 1 then community add COMM-FROM-SKYNET-AS300
+set policy-options policy-statement eBGP-OUT-V4 term 1 then accept
+set policy-options policy-statement eBGP-OUT-V4 term 2 then reject
+set policy-options policy-statement eBGP-OUT-V4 term 999 then reject
+set policy-options policy-statement eBGP-OUT-V6 term BLOCK-RTBH from community SKNT-RTBH
+set policy-options policy-statement eBGP-OUT-V6 term BLOCK-RTBH then reject
+set policy-options policy-statement eBGP-OUT-V6 term BLOCK-INTERNAL-ONLY from community SKNT-INTERNAL-ONLY
+set policy-options policy-statement eBGP-OUT-V6 term BLOCK-INTERNAL-ONLY then reject
+set policy-options policy-statement eBGP-OUT-V6 term BLOCK-NO-VERIZON from community SKNT-NO-EXPORT-VERIZON
+set policy-options policy-statement eBGP-OUT-V6 term BLOCK-NO-VERIZON then reject
+set policy-options policy-statement eBGP-OUT-V6 term 1 from prefix-list eBGP-OUT-V6
+set policy-options policy-statement eBGP-OUT-V6 term 1 then community add COMM-FROM-SKYNET-AS300
+set policy-options policy-statement eBGP-OUT-V6 term 1 then accept
+set policy-options policy-statement eBGP-OUT-V6 term 999 then reject
+set policy-options community COMM-FROM-SKYNET-AS300 members 300:300
+set policy-options community COMM-FROM-VERIZON-AS200 members 300:200
+set policy-options community SKNT-INTERNAL-ONLY members 300:778
+set policy-options community SKNT-NO-EXPORT-VERIZON members 300:703
+set policy-options community SKNT-RTBH members 300:666
+set class-of-service classifiers dscp QOS-DSCP forwarding-class best-effort loss-priority low code-points 000000
+set class-of-service classifiers dscp QOS-DSCP forwarding-class voice loss-priority low code-points 101110
+set class-of-service classifiers dscp QOS-DSCP forwarding-class critical loss-priority low code-points 011010
+set class-of-service classifiers dscp QOS-DSCP forwarding-class scavenger loss-priority high code-points 001000
+set class-of-service classifiers dscp QOS-DSCP forwarding-class network-control loss-priority low code-points 110000
+set class-of-service classifiers dscp TRANSIT-DSCP forwarding-class best-effort loss-priority low code-points 000000
+set class-of-service classifiers dscp TRANSIT-DSCP forwarding-class voice loss-priority low code-points 101110
+set class-of-service classifiers dscp TRANSIT-DSCP forwarding-class critical loss-priority low code-points 011010
+set class-of-service classifiers dscp TRANSIT-DSCP forwarding-class scavenger loss-priority high code-points 001000
+set class-of-service classifiers dscp TRANSIT-DSCP forwarding-class network-control loss-priority low code-points 110000
+set class-of-service forwarding-classes queue 0 best-effort
+set class-of-service forwarding-classes queue 1 scavenger
+set class-of-service forwarding-classes queue 2 critical
+set class-of-service forwarding-classes queue 3 voice
+set class-of-service forwarding-classes queue 7 network-control
+set class-of-service interfaces ge-0/0/0 scheduler-map TRANSIT-QOS-MAP
+set class-of-service interfaces ge-0/0/0 unit 0 classifiers dscp TRANSIT-DSCP
+set class-of-service interfaces ge-0/0/1 scheduler-map QOS-MAP
+set class-of-service interfaces ge-0/0/1 unit 0 classifiers dscp QOS-DSCP
+set class-of-service interfaces ge-0/0/2 scheduler-map QOS-MAP
+set class-of-service interfaces ge-0/0/2 unit 0 classifiers dscp QOS-DSCP
+set class-of-service interfaces ge-0/0/3 scheduler-map QOS-MAP
+set class-of-service interfaces ge-0/0/3 unit 0 classifiers dscp QOS-DSCP
+set class-of-service interfaces ge-0/0/5 scheduler-map QOS-MAP
+set class-of-service interfaces ge-0/0/5 unit 600 classifiers dscp QOS-DSCP
+set class-of-service scheduler-maps QOS-MAP forwarding-class best-effort scheduler BE
+set class-of-service scheduler-maps QOS-MAP forwarding-class voice scheduler VOICE
+set class-of-service scheduler-maps QOS-MAP forwarding-class critical scheduler CRITICAL
+set class-of-service scheduler-maps QOS-MAP forwarding-class scavenger scheduler SCAVENGER
+set class-of-service scheduler-maps QOS-MAP forwarding-class network-control scheduler NC
+set class-of-service scheduler-maps TRANSIT-QOS-MAP forwarding-class best-effort scheduler TRANSIT-BE
+set class-of-service scheduler-maps TRANSIT-QOS-MAP forwarding-class voice scheduler TRANSIT-VOICE
+set class-of-service scheduler-maps TRANSIT-QOS-MAP forwarding-class critical scheduler TRANSIT-CRITICAL
+set class-of-service scheduler-maps TRANSIT-QOS-MAP forwarding-class scavenger scheduler TRANSIT-SCAVENGER
+set class-of-service scheduler-maps TRANSIT-QOS-MAP forwarding-class network-control scheduler TRANSIT-NC
+set class-of-service schedulers BE transmit-rate remainder
+set class-of-service schedulers BE priority low
+set class-of-service schedulers VOICE transmit-rate percent 15
+set class-of-service schedulers VOICE priority high
+set class-of-service schedulers CRITICAL transmit-rate percent 20
+set class-of-service schedulers CRITICAL priority medium-high
+set class-of-service schedulers SCAVENGER transmit-rate percent 5
+set class-of-service schedulers SCAVENGER priority low
+set class-of-service schedulers NC transmit-rate percent 10
+set class-of-service schedulers NC priority strict-high
+set class-of-service schedulers TRANSIT-BE transmit-rate remainder
+set class-of-service schedulers TRANSIT-BE priority low
+set class-of-service schedulers TRANSIT-VOICE transmit-rate percent 10
+set class-of-service schedulers TRANSIT-VOICE priority high
+set class-of-service schedulers TRANSIT-CRITICAL transmit-rate percent 15
+set class-of-service schedulers TRANSIT-CRITICAL priority medium-high
+set class-of-service schedulers TRANSIT-SCAVENGER transmit-rate percent 5
+set class-of-service schedulers TRANSIT-SCAVENGER priority low
+set class-of-service schedulers TRANSIT-NC transmit-rate percent 5
+set class-of-service schedulers TRANSIT-NC priority strict-high
+set firewall family inet filter COPP term OSPF from protocol ospf
+set firewall family inet filter COPP term OSPF then policer COPP-CRITICAL
+set firewall family inet filter COPP term OSPF then accept
+set firewall family inet filter COPP term BGP from protocol tcp
+set firewall family inet filter COPP term BGP from port bgp
+set firewall family inet filter COPP term BGP then policer COPP-CRITICAL
+set firewall family inet filter COPP term BGP then accept
+set firewall family inet filter COPP term LDP-TCP from protocol tcp
+set firewall family inet filter COPP term LDP-TCP from port 646
+set firewall family inet filter COPP term LDP-TCP then policer COPP-CRITICAL
+set firewall family inet filter COPP term LDP-TCP then accept
+set firewall family inet filter COPP term LDP-UDP from protocol udp
+set firewall family inet filter COPP term LDP-UDP from port 646
+set firewall family inet filter COPP term LDP-UDP then policer COPP-CRITICAL
+set firewall family inet filter COPP term LDP-UDP then accept
+set firewall family inet filter COPP term SSH from source-address 172.16.0.0/24
+set firewall family inet filter COPP term SSH from protocol tcp
+set firewall family inet filter COPP term SSH from port ssh
+set firewall family inet filter COPP term SSH then policer COPP-MGMT
+set firewall family inet filter COPP term SSH then accept
+set firewall family inet filter COPP term ICMP from protocol icmp
+set firewall family inet filter COPP term ICMP then policer COPP-MONITOR
+set firewall family inet filter COPP term ICMP then accept
+set firewall family inet filter COPP term DEFAULT then policer COPP-DEFAULT
+set firewall family inet filter COPP term DEFAULT then accept
+set firewall policer COPP-CRITICAL if-exceeding bandwidth-limit 1m
+set firewall policer COPP-CRITICAL if-exceeding burst-size-limit 187500
+set firewall policer COPP-CRITICAL then discard
+set firewall policer COPP-MGMT if-exceeding bandwidth-limit 512k
+set firewall policer COPP-MGMT if-exceeding burst-size-limit 96k
+set firewall policer COPP-MGMT then discard
+set firewall policer COPP-MONITOR if-exceeding bandwidth-limit 256k
+set firewall policer COPP-MONITOR if-exceeding burst-size-limit 48k
+set firewall policer COPP-MONITOR then discard
+set firewall policer COPP-DEFAULT if-exceeding bandwidth-limit 64k
+set firewall policer COPP-DEFAULT if-exceeding burst-size-limit 12k
+set firewall policer COPP-DEFAULT then discard
+set firewall policer EVC300-IN-100M if-exceeding bandwidth-limit 100m
+set firewall policer EVC300-IN-100M if-exceeding burst-size-limit 1250000
+set firewall policer EVC300-IN-100M then discard
+set firewall filter SSH-ALLOWED term PERMIT-SSH from source-address 172.16.0.0/24
+set firewall filter SSH-ALLOWED term PERMIT-SSH from protocol tcp
+set firewall filter SSH-ALLOWED term PERMIT-SSH from destination-port ssh
+set firewall filter SSH-ALLOWED term PERMIT-SSH then accept
+set firewall filter SSH-ALLOWED term DENY-SSH from protocol tcp
+set firewall filter SSH-ALLOWED term DENY-SSH from destination-port ssh
+set firewall filter SSH-ALLOWED term DENY-SSH then log
+set firewall filter SSH-ALLOWED term DENY-SSH then reject
+set firewall filter SSH-ALLOWED term ACCEPT-OTHERS then accept
+set routing-instances EVPN-600 instance-type virtual-switch
+set routing-instances EVPN-600 route-distinguisher 192.168.1.5:600
+set routing-instances EVPN-600 vrf-target target:300:600
+set routing-instances EVPN-600 protocols evpn extended-vlan-list 600
+set routing-instances EVPN-600 bridge-domains BD600 vlan-id 600
+set routing-instances EVPN-600 bridge-domains BD600 interface ge-0/0/5.600
+set routing-instances EVPN-600 bridge-domains BD600 routing-interface irb.600
+
+[edit]
+root@SKNT-PE05-vMX02# run show lldp neighbors 
+Local Interface    Parent Interface    Chassis Id          Port info          System Name
+ge-0/0/3           -                   50:00:00:06:00:00   Gi0/3              SKNT-PE07-POP02.evelab.com
+ge-0/0/2           -                   50:00:00:07:00:00   Gi0/4              SKNT-P01-ISP.evelab.com
+
+[edit]
+root@SKNT-PE05-vMX02# run set cli screen-length 24 
+Screen length set to 24
+
+[edit]
