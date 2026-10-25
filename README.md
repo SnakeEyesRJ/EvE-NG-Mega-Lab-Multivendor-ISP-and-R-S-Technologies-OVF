@@ -1,6 +1,13 @@
 # SKYNET-ISP — Service Provider Lab
 
-A hands-on EVE-NG lab project focused on service provider networking, routing, and network infrastructure technologies.
+![Profile Banner](TWITCH-COVER-2026.png)
+
+A hands-on EVE-NG lab project focused on service provider networking, routing, switching, and multivendor network infrastructure technologies.
+
+**Author:** [Emildo Lahud](https://github.com/SnakeEyesRJ)  
+**Repository:** [EvE-NG-Mega-Lab-Multivendor-ISP-and-R-S-Technologies-OVF](https://github.com/SnakeEyesRJ/EvE-NG-Mega-Lab-Multivendor-ISP-and-R-S-Technologies-OVF)
+
+---
 
 ## Network Topology
 
@@ -12,7 +19,7 @@ The diagram below illustrates the SKYNET-ISP Service Provider Lab topology.
 
 ## Technologies Implemented
 
-The SKYNET-ISP lab is a multi-vendor Service Provider network environment built with EVE-NG, designed to demonstrate ISP routing, MPLS services, VPN technologies, IPv6, and network interoperability.
+SKYNET-ISP is a multivendor Service Provider network environment built with EVE-NG, designed to demonstrate ISP routing, MPLS services, VPN technologies, IPv6, and network interoperability.
 
 ### Network Platforms
 
@@ -71,39 +78,31 @@ The SKYNET-ISP lab is a multi-vendor Service Provider network environment built 
 - Customer AS integration
 - Multiple autonomous systems and routing domains
 
-### Lab Resources
-
-- Device configuration files in TXT format
-- Network topology diagram
-- Lab documentation
-- EVE-NG Windows Client Pack
-- WinSCP installation resource
-
 > **Note:** The technologies listed above describe the lab's documented design and known configurations. Feature availability may vary by device platform and software version.
 
 ## Project Contents
 
-- **Full Lab VM:** Complete lab VM archive, hosted on Google Drive.
+- **Full Lab VM:** Complete lab VM archive hosted on Google Drive.
 - **Topology:** Network topology diagram.
 - **Lab Configurations:** Device configuration files in TXT format.
 - **Documentation:** Project presentation and lab instructions.
-- **Reset Instructions:** Instructions for clearing configurations before starting.
+- **EVE-NG Windows Client Pack:** Supporting client integration resources.
+- **WinSCP:** Supporting file transfer resource.
+- **Reset Instructions:** Instructions for clearing device configurations before starting.
 
 ## Download the Full Lab VM
 
-The complete VM archive is hosted externally on Google Drive because its size exceeds GitHub's regular file upload limits.
+The complete VM archive is hosted externally on Google Drive because of its size.
 
 **[Download the SKYNET-ISP Lab VM](https://drive.google.com/file/d/1BP6e-y3PhWYCiR8qE8X3xzRlJFo3omaf/view?usp=drive_link)**
 
-> The archive is not stored in this GitHub repository. Access depends on the sharing permissions configured for the Google Drive file.
-
-## Network Topology
-
-View the [SKYNET-ISP Lab Topology](03%20-%20Topology%20Screenshot/SKYNET-ISP-LAB-TOPOLOGY.png).
+The archive is not stored in this GitHub repository. Access depends on the sharing permissions configured for the Google Drive file.
 
 ## Lab Configurations
 
-The repository includes device configuration files in the [`02 - LAB Configs .TXTs`](02%20-%20LAB%20Configs%20.TXTs/) directory.
+Device configuration files are available in the [`02 - LAB Configs .TXTs`](02%20-%20LAB%20Configs%20.TXTs/) directory.
+
+These files provide a starting point for examining the lab's device configurations and networking scenarios.
 
 ## Documentation
 
@@ -111,25 +110,62 @@ The repository includes device configuration files in the [`02 - LAB Configs .TX
 - [English Instructions](07%20-%20READ%20THE%20INSTRUCTIONS/READ-ME-IMPORTANT.txt)
 - [Reset Configurations — English](WIPE-ALL-CONFIGS-BEFORE-START.txt)
 
-## Technologies and Topics
-
-The lab covers service provider networking scenarios involving technologies such as BGP, MPLS Layer 3 VPNs, DMVPN, EVPN, and IPv6.
-
-Refer to the topology and project documentation for the specific devices, connections, and implementation details.
-
 ## Getting Started
 
-1. Review the topology diagram and project presentation.
-2. Obtain the full lab VM archive from the Google Drive link above.
-3. Follow the supplied instructions before starting the lab.
-4. Review the device configuration files as needed.
-5. Follow the reset instructions when a clean configuration state is required.
+1. Review the network topology and project presentation.
+2. Download the full lab VM archive from the Google Drive link above.
+3. Review the supplied instructions before starting the lab.
+4. Confirm that your EVE-NG environment and required device images are compatible.
+5. Review the device configuration files as needed.
+6. Follow the reset instructions only when a clean configuration state is required.
+
+### Important: Configuration Reset
+
+**Read `WIPE-ALL-CONFIGS-BEFORE-START.txt` before performing any reset operation.**
+
+Reset procedures may erase device configurations and remove work from previous lab sessions. Back up any configurations you want to preserve before proceeding.
+
+## Related Project — SecureCRT Keyword Highlight
+
+In addition to the SKYNET-ISP lab, I maintain a separate project for multivendor SecureCRT keyword highlighting.
+
+The project provides keyword-highlighting resources intended to make network CLI output easier to read and help identify important commands, protocol states, and troubleshooting information.
+
+**[Explore the SecureCRT Keyword Highlight — Multivendor Repository](https://github.com/SnakeEyesRJ/SecureCRT-Keyword-Highligh-Multivendor)**
+
+This is a separate project and is not required to run the SKYNET-ISP lab.
+
+## About the Author
+
+**SnakeEyesRJ/BR**  
+Senior Network Engineer & Instructor
+
+Focused on routing and switching, service provider networking, multivendor interoperability, network infrastructure, and technical training.
+
+- **GitHub:** [@SnakeEyesRJ](https://github.com/SnakeEyesRJ)
+- **SKYNET-ISP Lab:** [View Repository](https://github.com/SnakeEyesRJ/EvE-NG-Mega-Lab-Multivendor-ISP-and-R-S-Technologies-OVF)
+- **SecureCRT Keyword Highlight:** [View Repository](https://github.com/SnakeEyesRJ/SecureCRT-Keyword-Highligh-Multivendor)
 
 ## Disclaimer
 
-This repository is provided for educational, training, and lab purposes. Review the supplied documentation and software licensing terms before use.
+This repository is provided for educational, training, testing, and laboratory purposes.
+
+All product names, trademarks, software names, and vendor references belong to their respective owners. Users are responsible for obtaining the appropriate software, licenses, and permissions required for their environments.
+
+Feature availability and compatibility depend on the specific software images, versions, and configurations used.
+
+## Support the Project
+
+If you find this project useful:
+
+- ⭐ Star the repository.
+- 👀 Follow the project as it evolves.
+- 🧪 Experiment with the lab and share constructive feedback.
+- 🛠️ Contribute improvements and documentation where appropriate.
 
 ---
 
 **Project:** SKYNET-ISP  
-**Repository:** [SnakeLabs / SKYNET-ISP-LAB-OVF-EVE](https://github.com/SnakeEyesRJ/SKYNET-ISP-LAB-OVF-EVE)
+**Repository:** [SnakeEyesRJ / EvE-NG-Mega-Lab-Multivendor-ISP-and-R-S-Technologies-OVF](https://github.com/SnakeEyesRJ/EvE-NG-Mega-Lab-Multivendor-ISP-and-R-S-Technologies-OVF)
+
+*Explore. Configure. Validate. Troubleshoot.*
