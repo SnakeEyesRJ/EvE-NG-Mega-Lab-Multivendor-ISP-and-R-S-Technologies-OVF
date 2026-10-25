@@ -10,6 +10,76 @@ The diagram below illustrates the SKYNET-ISP Service Provider Lab topology.
 
 [View the full-resolution topology](03%20-%20Topology%20Screenshot/SKYNET-ISP-LAB-TOPOLOGY.png)
 
+## Technologies Implemented
+
+The SKYNET-ISP lab is a multi-vendor Service Provider network environment built with EVE-NG, designed to demonstrate ISP routing, MPLS services, VPN technologies, IPv6, and network interoperability.
+
+### Network Platforms
+
+- Cisco IOS XR — IOS XRv
+- Juniper Junos OS — vMX
+- Huawei VRP — NE40E
+- Cisco IOL — Switching and aggregation
+- EVE-NG — Network emulation and lab environment
+
+### Routing and Control Plane
+
+- BGP — Border Gateway Protocol
+- iBGP — Internal BGP
+- eBGP — External BGP
+- Multi-AS routing scenarios
+- Multiple upstream and external BGP peers
+- BGP routing policy and route advertisement
+- BGP timer tuning
+- LDP–IGP Synchronization
+
+### MPLS and VPN Services
+
+- MPLS
+- MPLS Layer 3 VPN (L3VPN)
+- BGP-based VPN routing
+- Provider Edge (PE) and Customer Edge (CE) architectures
+- Multi-AS Service Provider routing scenarios
+
+### Ethernet VPN and Layer 2 Services
+
+- EVPN
+- Integrated Routing and Bridging (IRB)
+- Bridge Domains
+- VLAN-based Layer 2 services
+- EVPN-based data center connectivity
+
+### IPv4 and IPv6
+
+- IPv4 routing
+- IPv6 addressing and routing
+- IPv6-enabled EVPN segments
+- EIGRP for IPv6 (EIGRPv6)
+
+### Overlay and WAN Technologies
+
+- DMVPN Hub-and-Spoke
+- Multi-site connectivity
+- Service Provider and customer-edge interconnection
+
+### Upstream Connectivity and AS Scenarios
+
+- Sparkle — External BGP connectivity
+- Hurricane Electric (HE)
+- Tata Communications
+- Verizon
+- Customer AS integration
+- Multiple autonomous systems and routing domains
+
+### Lab Resources
+
+- Device configuration files in TXT format
+- Network topology diagram
+- Lab documentation
+- EVE-NG Windows Client Pack
+- WinSCP installation resource
+
+> **Note:** The technologies listed above describe the lab's documented design and known configurations. Feature availability may vary by device platform and software version.
 
 ## Project Contents
 
