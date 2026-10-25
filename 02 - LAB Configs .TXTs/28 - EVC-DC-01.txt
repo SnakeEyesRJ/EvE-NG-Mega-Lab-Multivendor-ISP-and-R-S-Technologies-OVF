@@ -1,0 +1,349 @@
+﻿EVC-DC-01#end 
+Translating "end"
+
+Translating "end"
+
+Translating "end"
+% Unknown command or computer name, or unable to find computer address
+EVC-DC-01#terminal length 0 
+EVC-DC-01#show running-config 
+Building configuration...
+
+Current configuration : 7645 bytes
+!
+! Last configuration change at 17:18:53 UTC Mon Sep 28 2026 by eve
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service compress-config
+!
+hostname EVC-DC-01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging buffered 51200 warnings
+enable secret 5 $1$SWwO$mKiRimwaTbpncRse1bz7Q0
+!
+username eve privilege 15 secret 5 $1$1BAz$Sa688DJ7rp0N0styp1a8r.
+no aaa new-model
+clock timezone UTC -3 0
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain-lookup
+ip domain-name evelab.com
+ip name-server 8.8.8.8
+ip name-server 1.1.1.1
+ip name-server 192.168.100.1
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+lldp run
+!
+!
+class-map match-any DC1-CRITICAL
+ match dscp cs3 
+ match dscp af21 
+ match dscp af22 
+ match dscp af23 
+class-map match-any DC1-BUSINESS
+ match dscp af31 
+ match dscp af32 
+ match dscp af33 
+class-map match-any DC1-DEFAULT
+ match any 
+!
+policy-map DC1-EVC-QOS
+ class DC1-BUSINESS
+  bandwidth percent 40 
+ class DC1-CRITICAL
+  bandwidth percent 30 
+ class DC1-DEFAULT
+  bandwidth percent 30 
+!
+! 
+!
+crypto ikev2 proposal IKEV2-PROPOSAL 
+ encryption aes-cbc-256
+ integrity sha512
+ group 20
+!
+crypto ikev2 policy IKEV2-POLICY 
+ proposal IKEV2-PROPOSAL
+!
+crypto ikev2 keyring IKEV2-KEYRING
+ peer EVC-DC-02
+  address 192.168.131.2
+  pre-shared-key Evelab@2025
+ !
+!
+crypto ikev2 keyring DC1-IPV6-KEYRING
+ peer DC2
+  address FC91::2/128
+  pre-shared-key Evelab@2025
+ !
+!
+!
+crypto ikev2 profile IKEV2-PROFILE
+ match identity remote address 192.168.131.2 255.255.255.255 
+ identity local address 192.168.131.1
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local IKEV2-KEYRING
+ dpd 10 3 periodic
+!
+crypto ikev2 profile DC1-IPV6-PROFILE
+ match identity remote address FC91::2/128
+ identity local address FC91::1
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local DC1-IPV6-KEYRING
+ dpd 10 3 periodic
+!
+!
+!
+crypto ipsec transform-set TS-IKEV2 esp-aes 256 esp-sha512-hmac 
+ mode transport
+crypto ipsec transform-set DC1-IPV6-TS esp-aes 256 esp-sha512-hmac 
+ mode transport
+!
+crypto ipsec profile DC1-IPV6-IPSEC
+ set security-association lifetime seconds 1800
+ set transform-set DC1-IPV6-TS 
+ set pfs group20
+ set ikev2-profile DC1-IPV6-PROFILE
+!
+crypto ipsec profile IPSEC-IKEV2
+ set security-association lifetime seconds 1800
+ set transform-set TS-IKEV2 
+ set pfs group20
+ set ikev2-profile IKEV2-PROFILE
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description EVC-DC-01-SERVER-01
+ ip address 10.16.16.1 255.255.255.255
+!
+interface Loopback1
+ description EVC-DC-01-V4V6-01
+ ip address 192.168.227.1 255.255.255.255
+ ipv6 address FD00:16:16::1/128
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+!
+interface Loopback2
+ description EVC-DC-01-V4V6-02
+ ip address 192.168.227.2 255.255.255.255
+ ipv6 address FD00:16:16::2/128
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+!
+interface Loopback3
+ description EVC-DC-01-V4V6-03
+ ip address 192.168.227.3 255.255.255.255
+ ipv6 address FD00:16:16::3/128
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+!
+interface Loopback4
+ description EVC-DC-01-V4V6-04
+ ip address 192.168.227.4 255.255.255.255
+ ipv6 address FD00:16:16::4/128
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+!
+interface Loopback5
+ description EVC-DC-01-V4V6-05
+ ip address 192.168.227.5 255.255.255.255
+ ipv6 address FD00:16:16::5/128
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+!
+interface Loopback300
+ description SIMULATED-INTERNAL-LAN-DC1
+ ip address 172.16.172.1 255.255.255.255
+ ipv6 address FD00:172:16::1/128
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+!
+interface Tunnel0
+ description GRE over IKEv2/IPsec
+ ip address 10.177.177.1 255.255.255.252
+ ip mtu 1400
+ ip rip send version 2
+ ip rip receive version 2
+ ip verify unicast source reachable-via rx
+ ip tcp adjust-mss 1360
+ tunnel source Vlan300
+ tunnel destination 192.168.131.2
+ tunnel protection ipsec profile IPSEC-IKEV2
+!
+interface Tunnel1
+ description GRE over IPv6 protected by IKEv2/IPsec
+ no ip address
+ ipv6 address 2001:177:177::1/64
+ ipv6 enable
+ ipv6 mtu 1386
+ ipv6 tcp adjust-mss 1326
+ ipv6 rip RIP-NG-SKYNET enable
+ ipv6 verify unicast source reachable-via rx
+ tunnel source Vlan300
+ tunnel mode gre ipv6
+ tunnel destination FC91::2
+ tunnel protection ipsec profile DC1-IPV6-IPSEC
+!
+interface Ethernet0/0
+ description To-SKNT-PE04-vMX01
+ switchport trunk allowed vlan 300
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/1
+ description NOT-USED
+ shutdown
+!
+interface Ethernet0/2
+ description NOT-USED
+ shutdown
+!
+interface Ethernet0/3
+ description NOT-USED
+ shutdown
+!
+interface Vlan300
+ description EVC300-Test-SVI
+ ip address 192.168.131.1 255.255.255.0
+ ipv6 address FC91::1/64
+ ipv6 enable
+ ipv6 rip RIP-NG-SKYNET enable
+ ipv6 rip RIP-NG-SKYNET metric-offset 16
+!
+router rip
+ version 2
+ passive-interface Loopback300
+ network 10.0.0.0
+ network 172.16.0.0
+ network 192.168.227.0
+ no auto-summary
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+ipv6 router rip RIP-NG-SKYNET
+!
+!
+!
+!
+control-plane
+!
+banner login ^C
+
+                     <<< EVC-DC-01 >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                     <<< EVC-DC-01 >>>                    
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+!
+end
+
+EVC-DC-01#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+EVC-DC-01(config)#line vty 0 4 
+EVC-DC-01(config-line)#length 24 
+EVC-DC-01(config-line)#line console 0 
+EVC-DC-01(config-line)#length 24 
+EVC-DC-01(config-line)#end 
+EVC-DC-01#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE04-vMX01     Et0/0          120        B,R             ge-0/0/6
+
+Total entries displayed: 1
+
+EVC-DC-01#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 192.168.1.3
+EVC-DC-01#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+Compressed configuration from 7645 bytes to 3643 bytes[OK]
+EVC-DC-01#
+*Sep 28 19:30:00.890 UTC: %SYS-5-CONFIG_I: Configured from console by eve on console
