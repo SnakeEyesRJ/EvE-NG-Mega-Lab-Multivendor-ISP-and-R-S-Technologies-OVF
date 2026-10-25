@@ -14,7 +14,7 @@ A hands-on EVE-NG lab project focused on service provider networking, routing, a
 
 The complete VM archive is hosted externally on Google Drive because its size exceeds GitHub's regular file upload limits.
 
-**[Download the SKYNET-ISP Lab VM](PASTE_GOOGLE_DRIVE_SHARE_LINK_HERE)**
+**[Download the SKYNET-ISP Lab VM](https://drive.google.com/file/d/1BP6e-y3PhWYCiR8qE8X3xzRlJFo3omaf/view?usp=drive_link)**
 
 > The archive is not stored in this GitHub repository. Access depends on the sharing permissions configured for the Google Drive file.
 
