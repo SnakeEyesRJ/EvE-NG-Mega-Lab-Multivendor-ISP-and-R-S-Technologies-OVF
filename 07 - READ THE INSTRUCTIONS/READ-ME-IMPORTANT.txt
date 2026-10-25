@@ -1,0 +1,47 @@
+## ATTENTION ##
+
+••• THE EVE-NG VM IS CONFIGURED WITH A STATIC IP ADDRESS •••
+••• CHANGE IT TO YOUR HOME LAN TO GET ACCESS TO WEB GUI •••
+
+• FROM EVE-NG CONSOLE, FOLLOW THESE STEPS. •
+
+• Manually changing pnet0
+• You can edit the network file directly using NANO.
+
+nano /etc/network/interfaces
+
+• The management section should look like this:
+
+iface eth0 inet manual
+
+auto pnet0
+iface pnet0 inet static
+    address 192.168.1.254
+    netmask 255.255.255.0
+    gateway 192.168.1.1
+    dns-nameservers 8.8.8.8 1.1.1.1
+    bridge_ports eth0
+    bridge_stp off
+
+• REPLACE
+
+192.168.1.100   = desired EVE-NG IP
+255.255.255.0   = network mask
+192.168.1.1     = local gateway
+
+• THEN FINALLY
+
+Ctrl+O (save)
+Enter (confirm)
+Ctrl+X (exit)
+
+•••••••• CREDENTIALS (INCLUDING ALL DEVICES) ••••••••
+
+USER: admin
+PASS: Evelab@2025
+
+## SHELL/EVE CONSOLE ##
+
+USER: root
+PASS: Evelab@2025
+
