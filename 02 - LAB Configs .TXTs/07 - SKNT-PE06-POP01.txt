@@ -1,0 +1,746 @@
+﻿SKNT-PE06-POP01#end 
+Translating "end"
+
+Translating "end"
+
+% Bad IP address or host name
+% Unknown command or computer name, or unable to find computer address
+SKNT-PE06-POP01#terminal length 0 
+SKNT-PE06-POP01#show running-config 
+Building configuration...
+
+  
+Current configuration : 19823 bytes
+!
+! Last configuration change at 19:17:48 BRT Mon Sep 28 2026 by eve
+! NVRAM config last updated at 19:17:49 BRT Mon Sep 28 2026 by eve
+!
+version 15.6
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+!
+hostname SKNT-PE06-POP01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging discriminator NOTRACE msg-body drops -Traceback=
+logging buffered discriminator NOTRACE
+enable secret 5 $1$hJH1$TlxN5E.JbVE4VqjtdS2WT.
+!
+no aaa new-model
+ethernet lmi ce
+!
+!
+!
+clock timezone BRT -3 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+no ip source-route
+!
+!
+!
+ip dhcp excluded-address 192.151.151.2
+!
+ip dhcp pool VPN1
+ network 192.151.151.0 255.255.255.252
+ default-router 192.151.151.2 
+!
+!
+!
+no ip bootp server
+no ip domain lookup
+ip domain name evelab.com
+ip name-server 1.1.1.1
+ip name-server 8.8.8.8
+ip name-server 192.168.100.1
+ip cef
+login on-failure log
+login on-success log
+ipv6 unicast-routing
+ipv6 cef
+no ipv6 dhcp server join all-dhcp-servers
+!
+multilink bundle-name authenticated
+xconnect logging pseudowire status
+mpls label range 6000 6999
+mpls label protocol ldp
+mpls ldp neighbor 192.168.1.4 targeted ldp
+mpls ldp neighbor 192.168.1.1 targeted ldp
+mpls ldp neighbor 192.168.1.2 targeted ldp
+mpls ldp neighbor 192.168.1.3 targeted ldp
+mpls ldp neighbor 192.168.1.5 targeted ldp
+mpls ldp neighbor 192.168.1.200 targeted ldp
+mpls ldp neighbor 192.168.1.250 targeted ldp
+mpls ldp neighbor 192.168.1.251 targeted ldp
+mpls ldp neighbor 192.168.1.101 targeted ldp
+mpls ldp neighbor 192.168.1.100 targeted ldp
+mpls ldp graceful-restart
+mpls ldp session protection
+mpls ldp igp sync holddown 1
+mpls ldp discovery targeted-hello accept
+mpls traffic-eng tunnels
+no mpls ip propagate-ttl forwarded
+!
+!
+!
+!
+username eve privilege 15 secret 5 $1$hj4/$FLEGDahF9wMTCMy7CQrwu0
+!
+redundancy
+!
+lldp run
+no cdp log mismatch duplex
+no cdp run
+!
+pseudowire-class CE01-TO-CE02
+ encapsulation mpls
+!
+!
+class-map match-any CM-PW-MULTIMEDIA
+ match dscp af31  af32  af33 
+ match qos-group 4
+class-map match-all CM-COPP-CRITICAL
+ match access-group name COPP-CRITICAL
+class-map match-all CM-COPP-MONITORING
+ match access-group name COPP-MONITORING
+class-map match-all CM-COPP-MANAGEMENT
+ match access-group name COPP-MANAGEMENT
+class-map match-any CM-CRITICAL
+ match dscp af31 
+class-map match-any CM-PW-INTERACTIVE-VIDEO
+ match dscp af41  af42  af43 
+ match access-group name QOS-PW-VIDEO
+ match qos-group 6
+class-map match-any CM-PW-CRITICAL-DATA
+ match dscp af21  af22  af23 
+ match qos-group 3
+class-map match-any CM-PW-TRANSACTIONAL
+ match dscp af11  af12  af13 
+ match qos-group 2
+class-map match-any CM-PW-SCAVENGER
+ match dscp cs1 
+ match access-group name QOS-PW-SCAVENGER
+ match qos-group 1
+class-map match-any CM-PW-SIGNALING
+ match dscp cs3 
+ match access-group name QOS-PW-SIGNALING
+ match qos-group 5
+class-map match-any CM-PW-VOICE
+ match dscp ef 
+ match access-group name QOS-PW-VOICE-RTP
+ match qos-group 7
+class-map match-any CM-PW-NETCTRL-MGMT
+ match access-group name QOS-CONTROL-TRAFFIC
+ match dscp cs2  cs6  cs7 
+ match qos-group 8
+class-map match-any CM-CONTROL
+ match access-group name QOS-CONTROL-TRAFFIC
+class-map match-any CM-VOICE
+ match dscp ef 
+class-map match-any CM-SCAVENGER
+ match dscp cs1 
+!
+policy-map PM-QOS-CHILD-PE06-GI0-2
+ class CM-CONTROL
+  priority percent 10
+ class CM-VOICE
+  priority percent 15
+ class CM-CRITICAL
+  bandwidth percent 20 
+ class CM-SCAVENGER
+  police 1000000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PW-CHILD-GI0-1
+ class CM-PW-NETCTRL-MGMT
+  priority percent 5
+ class CM-PW-VOICE
+  priority percent 10
+ class CM-PW-INTERACTIVE-VIDEO
+  bandwidth percent 15 
+ class CM-PW-SIGNALING
+  bandwidth percent 5 
+ class CM-PW-MULTIMEDIA
+  bandwidth percent 10 
+ class CM-PW-CRITICAL-DATA
+  bandwidth percent 15 
+ class CM-PW-TRANSACTIONAL
+  bandwidth percent 10 
+ class CM-PW-SCAVENGER
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  fair-queue
+policy-map PM-QOS-PW-PARENT-GI0-1
+ class class-default
+  shape average 20000000   
+   service-policy PM-QOS-PW-CHILD-GI0-1
+policy-map PM-QOS-PW-MARK-IN
+ class CM-PW-NETCTRL-MGMT
+  set qos-group 8
+  set mpls experimental imposition 6
+ class CM-PW-VOICE
+  set qos-group 7
+  set mpls experimental imposition 5
+ class CM-PW-INTERACTIVE-VIDEO
+  set qos-group 6
+  set mpls experimental imposition 4
+ class CM-PW-SIGNALING
+  set qos-group 5
+  set mpls experimental imposition 3
+ class CM-PW-MULTIMEDIA
+  set qos-group 4
+  set mpls experimental imposition 3
+ class CM-PW-CRITICAL-DATA
+  set qos-group 3
+  set mpls experimental imposition 2
+ class CM-PW-TRANSACTIONAL
+  set qos-group 2
+  set mpls experimental imposition 1
+ class CM-PW-SCAVENGER
+  set qos-group 1
+  set mpls experimental imposition 0
+  police 512000 conform-action transmit  exceed-action drop 
+ class class-default
+  set qos-group 0
+  set mpls experimental imposition 0
+policy-map PM-COPP
+ class CM-COPP-CRITICAL
+  police 1000000 187500 187500 conform-action transmit  exceed-action drop 
+ class CM-COPP-MANAGEMENT
+  police 512000 96000 96000 conform-action transmit  exceed-action drop 
+ class CM-COPP-MONITORING
+  police 256000 48000 48000 conform-action transmit  exceed-action drop 
+ class class-default
+  police 64000 12000 12000 conform-action transmit  exceed-action drop 
+policy-map PM-QOS-PARENT-PE06-GI0-2
+ class class-default
+  shape average 20000000   
+   service-policy PM-QOS-CHILD-PE06-GI0-2
+!
+! 
+!
+crypto ikev2 proposal DMVPN-IKEV2-PROP 
+ encryption aes-gcm-256
+ prf sha256
+ group 19
+crypto ikev2 proposal IKEV2-PROP 
+ encryption aes-gcm-256
+ prf sha256
+ group 19
+!
+crypto ikev2 policy DMVPN-IKEV2-POLICY 
+ proposal DMVPN-IKEV2-PROP
+crypto ikev2 policy IKEV2-POLICY 
+ proposal IKEV2-PROP
+!
+crypto ikev2 keyring IKEV2-KEYRING
+ peer POP02
+  address 192.152.152.2
+  pre-shared-key Evelab@2025
+ !
+!
+crypto ikev2 keyring DMVPN-IKEV2-KEYRING
+ peer HUB-P01
+  address 172.16.0.3
+  pre-shared-key Evelab@2025
+ !
+ peer PE07
+  address 172.16.0.200
+  pre-shared-key Evelab@2025
+ !
+ peer PE01-BORDER
+  address 172.16.0.254
+  pre-shared-key Evelab@2025
+ !
+ peer PE02-vIOS
+  address 172.16.0.250
+  pre-shared-key Evelab@2025
+ !
+!
+!
+crypto ikev2 profile IKEV2-PROFILE
+ match identity remote address 192.152.152.2 255.255.255.255 
+ identity local address 192.151.151.2
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local IKEV2-KEYRING
+ dpd 10 3 periodic
+!
+crypto ikev2 profile DMVPN-IKEV2-PROFILE
+ match identity remote address 172.16.0.3 255.255.255.255 
+ match identity remote address 172.16.0.200 255.255.255.255 
+ match identity remote address 172.16.0.254 255.255.255.255 
+ match identity remote address 172.16.0.250 255.255.255.255 
+ identity local address 172.16.0.100
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local DMVPN-IKEV2-KEYRING
+ dpd 10 3 periodic
+!
+crypto ikev2 fragmentation
+!
+crypto ipsec security-association replay window-size 1024
+!
+crypto ipsec transform-set VPN-TS esp-gcm 256 
+ mode tunnel
+crypto ipsec transform-set DMVPN-TS esp-gcm 256 
+ mode transport
+!
+crypto ipsec profile DMVPN-IPSEC-PROFILE
+ set transform-set DMVPN-TS 
+ set pfs group19
+ set ikev2-profile DMVPN-IKEV2-PROFILE
+!
+crypto ipsec profile VPN-PROFILE
+ set transform-set VPN-TS 
+ set pfs group19
+ set ikev2-profile IKEV2-PROFILE
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Internal-Transit
+ ip address 192.168.1.100 255.255.255.255
+ ip ospf network point-to-point
+ ipv6 address FC63::1/128
+ ospfv3 1 ipv6 area 0
+!
+interface Loopback1
+ description Provider-Lan
+ ip address 172.16.0.100 255.255.255.255
+!
+interface Loopback10
+ description Private-Subnet-POP01
+ ip address 10.151.151.1 255.255.255.252
+!
+interface Loopback300
+ description DMVPN-ENDPOINT-PE06
+ ip address 10.254.253.1 255.255.255.255
+!
+interface Tunnel10
+ description DMVPN-SPOKE-TO-P01
+ ip address 10.15.150.6 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp map 10.15.150.1 172.16.0.3
+ ip nhrp map multicast 172.16.0.3
+ ip nhrp network-id 10
+ ip nhrp nhs 10.15.150.1
+ ip nhrp shortcut
+ ip tcp adjust-mss 1360
+ tunnel source Loopback1
+ tunnel mode gre multipoint
+ tunnel key 10
+ tunnel protection ipsec profile DMVPN-IPSEC-PROFILE
+!
+interface Tunnel20
+ description IPv6-DMVPN-SPOKE-TO-P01
+ no ip address
+ no ip redirects
+ ipv6 address 2001:DB8:150::6/64
+ ipv6 mtu 1400
+ ipv6 nhrp map 2001:DB8:150::1/128 192.168.1.2
+ ipv6 nhrp map multicast 192.168.1.2
+ ipv6 nhrp network-id 10
+ ipv6 nhrp holdtime 300
+ ipv6 nhrp nhs 2001:DB8:150::1
+ ipv6 nhrp registration timeout 60
+ ipv6 nhrp shortcut
+ ipv6 ospf 1 area 0
+ ipv6 ospf network broadcast
+ ipv6 ospf dead-interval 40
+ ipv6 ospf priority 0
+ tunnel source Loopback0
+ tunnel mode gre multipoint
+ tunnel key 10
+!
+interface Tunnel100
+ description VPN-to-POP02
+ ip address 192.153.153.1 255.255.255.252
+ tunnel source GigabitEthernet0/4
+ tunnel destination 192.152.152.2
+ tunnel protection ipsec profile VPN-PROFILE
+!
+interface GigabitEthernet0/0
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ description To-SKNT-PE07-POP02
+ ip address 10.0.0.25 255.255.255.252
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FC20::1/127
+ mpls traffic-eng tunnels
+ mpls label protocol ldp
+ mpls ip
+ ipv6 ospf 1 area 0
+ service-policy output PM-QOS-PW-PARENT-GI0-1
+ ip rsvp bandwidth 50000
+!
+interface GigabitEthernet0/2
+ description To-SKNT-PE04-vMX01
+ ip address 10.0.0.14 255.255.255.252
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address FC05::1/127
+ mpls traffic-eng tunnels
+ mpls label protocol ldp
+ mpls ip
+ ospfv3 1 ipv6 area 0
+ service-policy output PM-QOS-PARENT-PE06-GI0-2
+ ip rsvp bandwidth 50000
+!
+interface GigabitEthernet0/3
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/4
+ description To-IPSEC-VPN01-EP01
+ ip address 192.151.151.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ description To-CE-01-PW01
+ no ip address
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ media-type rj45
+ xconnect 192.168.1.200 1 encapsulation mpls pw-class CE01-TO-CE02
+ service-policy input PM-QOS-PW-MARK-IN
+!
+interface GigabitEthernet0/6
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/7
+ description NOT-USED
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router ospfv3 1
+ router-id 192.168.1.100
+ !
+ address-family ipv6 unicast
+  router-id 192.168.1.100
+  auto-cost reference-bandwidth 10000
+ exit-address-family
+!
+router ospf 1
+ mpls ldp sync
+ router-id 192.168.1.100
+ auto-cost reference-bandwidth 10000
+ network 10.0.0.12 0.0.0.3 area 0
+ network 10.0.0.24 0.0.0.3 area 0
+ network 192.168.1.100 0.0.0.0 area 0
+!
+router bgp 300
+ bgp router-id 192.168.1.100
+ bgp log-neighbor-changes
+ bgp graceful-restart restart-time 120
+ bgp graceful-restart stalepath-time 360
+ bgp graceful-restart
+ bgp sso route-refresh-enable
+ neighbor 192.168.1.3 remote-as 300
+ neighbor 192.168.1.3 description To-SKNT-PE04-vMX01
+ neighbor 192.168.1.5 remote-as 300
+ neighbor 192.168.1.5 description To-SKNT-PE05-vMX02
+ neighbor 192.168.1.200 remote-as 300
+ neighbor 192.168.1.200 description To-SKNT-PE07-POP02
+ neighbor 192.168.1.200 update-source Loopback0
+ neighbor FC20:: remote-as 300
+ neighbor FC20:: description To-SKNT-PE07-POP02
+ neighbor FC60::1 remote-as 300
+ neighbor FC60::1 description To-SKNT-PE04-vMX01-LO0-v6
+ neighbor FC60::1 update-source Loopback0
+ neighbor FC61::1 remote-as 300
+ neighbor FC61::1 description To-SKNT-PE05-vMX02-LO0-v6
+ neighbor FC61::1 update-source Loopback0
+ !
+ address-family ipv4
+  network 172.16.0.100 mask 255.255.255.255
+  neighbor 192.168.1.3 activate
+  neighbor 192.168.1.3 soft-reconfiguration inbound
+  neighbor 192.168.1.5 activate
+  neighbor 192.168.1.5 soft-reconfiguration inbound
+  neighbor 192.168.1.200 activate
+  neighbor 192.168.1.200 soft-reconfiguration inbound
+  no neighbor FC20:: activate
+  no neighbor FC60::1 activate
+  no neighbor FC61::1 activate
+  maximum-paths ibgp 32
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 192.168.1.3 activate
+  neighbor 192.168.1.3 send-community both
+  neighbor 192.168.1.5 activate
+  neighbor 192.168.1.5 send-community both
+  neighbor 192.168.1.200 activate
+  neighbor 192.168.1.200 send-community both
+ exit-address-family
+ !
+ address-family ipv6
+  maximum-paths ibgp 32
+  network FC20::/127
+  neighbor FC20:: activate
+  neighbor FC20:: soft-reconfiguration inbound
+  neighbor FC60::1 activate
+  neighbor FC60::1 soft-reconfiguration inbound
+  neighbor FC61::1 activate
+  neighbor FC61::1 soft-reconfiguration inbound
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+!
+ip ftp username eve
+ip ftp password 7 123C13121E0A0E24787B767D
+no ip http server
+no ip http secure-server
+ip route 10.152.152.0 255.255.255.252 Tunnel100
+ip route 10.254.254.1 255.255.255.255 10.15.150.7
+ip route 192.152.152.0 255.255.255.252 Tunnel100
+ip route 192.152.152.2 255.255.255.255 10.0.0.26
+ip route 192.153.153.0 255.255.255.252 Tunnel100
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh source-interface Loopback1
+ip ssh version 2
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+ip ssh client algorithm mac hmac-sha1
+ip ssh client algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+ip access-list extended COPP-CRITICAL
+ remark OSPF, BGP, LDP
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ip access-list extended COPP-MANAGEMENT
+ remark SSH from Provider-LAN only
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ip access-list extended COPP-MONITORING
+ remark ICMP diagnostics + NTP
+ permit icmp any any echo
+ permit icmp any any echo-reply
+ permit icmp any any ttl-exceeded
+ permit icmp any any unreachable
+ permit udp any any eq ntp
+ip access-list extended QOS-CONTROL-TRAFFIC
+ permit ospf any any
+ permit tcp any any eq bgp
+ permit tcp any eq bgp any
+ permit udp any any eq 3784
+ permit udp any eq 3784 any
+ permit udp any any eq 3785
+ permit udp any eq 3785 any
+ permit tcp any any eq 646
+ permit tcp any eq 646 any
+ permit udp any any eq 646
+ permit udp any eq 646 any
+ permit udp any any eq 1698
+ permit udp any eq 1698 any
+ permit udp any any eq 1699
+ permit udp any eq 1699 any
+ permit udp any any eq ntp
+ permit udp any eq ntp any
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ permit tcp any 172.16.0.0 0.0.0.255 eq 22
+ip access-list extended QOS-PW-SCAVENGER
+ permit tcp any any range 6881 6999
+ permit tcp any range 6881 6999 any
+ permit udp any any range 6881 6999
+ permit udp any range 6881 6999 any
+ip access-list extended QOS-PW-SIGNALING
+ permit tcp any any eq 5060
+ permit udp any any eq 5060
+ permit tcp any any eq 5061
+ permit udp any any eq 5061
+ permit tcp any any eq 1720
+ permit tcp any any eq 2000
+ip access-list extended QOS-PW-VIDEO
+ permit udp any any range 5004 5005
+ permit udp any range 5004 5005 any
+ip access-list extended QOS-PW-VOICE-RTP
+ permit udp any any range 16384 32767
+ permit udp any range 16384 32767 any
+ip access-list extended SSH-ALLOWED
+ permit tcp 172.16.0.0 0.0.0.255 any eq 22
+ deny   ip any any
+!
+!
+snmp-server chassis-id 
+snmp-server enable traps l2tun pseudowire status
+!
+mpls ldp router-id Loopback0 force
+!
+control-plane
+ service-policy input PM-COPP
+!
+alias exec drop clear ip bgp *
+banner exec ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+banner incoming ^C
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************^C
+banner login ^C
+
+                  <<< SKNT-PE06-POP01 >>>                  
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+banner motd ^C
+
+                  <<< SKNT-PE06-POP01 >>>                  
+                             /\                            
+                            /  \                           
+                           / /\ \                          
+                          / /  \ \                         
+                         /_/____\_\                        
+                                                           
+***********************************************************
+*                                                         *
+*      YOU ARE ACCESSING A SKYNET PROVIDER EQUIPMENT      *
+*      UNAUTHORIZED ACCESS IS PROHIBITED AND WILL BE      *
+*      HANDLED WITH IMMEDIATE LETHAL COUNTERMEASURES.     *
+*                                                         *
+*            THE FUTURE IS NOT YOURS TO SAVE              *
+*                  AND NO HOPE REMAINS.                   *
+*                                                         *
+*      ALL ACTIVITIES ARE BEING MONITORED AND LOGGED.     *
+*                                                         *
+***********************************************************
+
+^C
+!
+line con 0
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+line aux 0
+ no exec
+line vty 0 4
+ access-class SSH-ALLOWED in
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+line vty 5 15
+ logging synchronous
+ login
+ transport input none
+!
+no scheduler allocate
+ntp source Loopback0
+ntp update-calendar
+ntp server 200.160.7.186 prefer
+ntp server 186.192.158.147
+ntp server 200.20.186.76
+event manager applet HIDE_TRACEBACK
+ event syslog pattern "%SYS-3-TRACEBACK"
+ action 1.0 syslog msg "Traceback suppressed by EEM"
+ action 2.0 set _exit_status "0"
+!
+end
+
+SKNT-PE06-POP01#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+SKNT-PE06-POP01(config)#line vty 0 4 
+SKNT-PE06-POP01(config-line)#length 24 
+SKNT-PE06-POP01(config-line)#line console 0 
+SKNT-PE06-POP01(config-line)#length 24 
+SKNT-PE06-POP01(config-line)#end 
+SKNT-PE06-POP01#show lldp neighbor 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+SKNT-PE04-vMX01     Gi0/2          120        B,R             ge-0/0/2
+
+Total entries displayed: 1
+
+SKNT-PE06-POP01#show lldp neighbors detail | include IP:|IPV6: 
+    IP: 192.168.1.3
+SKNT-PE06-POP01#copy run start 
+Destination filename [startup-config]? 
+Building configuration...
+
+  
+.Sep 28 22:51:49.578 BRT: %SYS-5-CONFIG_I: Configured from console by eve on console[OK]
+SKNT-PE06-POP01#
+.Sep 28 22:51:55.209 BRT: %GRUB-5-CONFIG_WRITING: GRUB configuration is being updated on disk. Please wait...
+.Sep 28 22:51:56.040 BRT: %GRUB-5-CONFIG_WRITTEN: GRUB configuration was written to disk successfully.
